@@ -208,6 +208,10 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   font-size: 12px; color: var(--accent-purple);
   margin-bottom: 10px; font-weight: 600;
 }
+.exercise-rpe-target {
+  font-size: 12px; color: var(--accent-purple);
+  margin-bottom: 8px; font-weight: 600;
+}
 .set-row {
   display: grid; grid-template-columns: 32px 1fr 1fr 60px 36px;
   gap: 6px; align-items: center; margin-bottom: 6px;
@@ -248,6 +252,25 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   color: #fff;
 }
 .set-header { font-size: 11px; color: var(--text2); text-transform: uppercase; }
+
+/* === EXERCISE NOTES & SUBS === */
+.exercise-user-notes {
+  margin-top: 10px; display: flex; flex-direction: column; gap: 6px;
+}
+.exercise-user-notes input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 13px;
+  width: 100%;
+}
+.exercise-user-notes input::placeholder { color: var(--text2); font-size: 12px; }
+.sub-toggle {
+  font-size: 12px; color: var(--accent-orange); font-weight: 600;
+  padding: 4px 0; cursor: pointer;
+}
 
 /* === REST TIMER === */
 .timer-fab {
@@ -359,6 +382,33 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   font-weight: 600;
 }
 
+/* === WEEKLY RECAP === */
+.recap-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 14px;
+}
+.recap-header {
+  font-size: 16px; font-weight: 700; margin-bottom: 4px;
+}
+.recap-daterange {
+  font-size: 12px; color: var(--text2); margin-bottom: 12px;
+}
+.recap-body {
+  font-size: 13px; color: var(--text); line-height: 1.6;
+}
+.recap-body p {
+  margin-bottom: 8px;
+}
+.recap-body .recap-highlight {
+  color: var(--accent-purple); font-weight: 600;
+}
+.recap-body .recap-warn {
+  color: var(--accent-orange);
+}
+
 /* === SETTINGS === */
 .settings-btn {
   display: flex; align-items: center; gap: 10px;
@@ -391,6 +441,29 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   margin: 0 auto 16px;
 }
 .modal h3 { font-size: 18px; margin-bottom: 12px; }
+.modal-field {
+  display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px;
+}
+.modal-field label {
+  font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px;
+}
+.modal-field input, .modal-field textarea {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 15px;
+  width: 100%;
+  font-family: inherit;
+}
+.modal-field textarea { resize: vertical; min-height: 60px; }
+.modal-save-btn {
+  width: 100%; margin-top: 12px; padding: 12px;
+  background: var(--accent-purple); color: #fff;
+  border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 600;
+}
 
 /* === WELLNESS TABLE === */
 .wellness-table { width: 100%; border-collapse: collapse; }
@@ -405,12 +478,23 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   border-bottom: 1px solid rgba(255,255,255,0.03);
 }
 .wellness-table td:first-child { text-align: left; font-size: 12px; color: var(--text2); }
+.wellness-table tr.clickable-row { cursor: pointer; }
+.wellness-table tr.clickable-row:active { background: rgba(255,255,255,0.03); }
 .wellness-dot {
   display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px;
 }
 .wellness-good { color: var(--accent-green); }
 .wellness-ok { color: var(--accent-gold); }
 .wellness-low { color: var(--accent-red); }
+.wellness-add-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; padding: 10px; margin-bottom: 10px;
+  background: rgba(168,85,247,0.1);
+  border: 1px solid rgba(168,85,247,0.25);
+  border-radius: var(--radius-sm);
+  color: var(--accent-purple);
+  font-size: 13px; font-weight: 600;
+}
 </style>
 </head>
 <body>
@@ -430,15 +514,15 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
     <div class="checkin">
       <div class="checkin-item">
         <label>Sleep Score</label>
-        <input type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="0.00–1.00" id="ci-sleep">
+        <input type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="0.00-1.00" id="ci-sleep">
       </div>
       <div class="checkin-item">
         <label>Recovery</label>
-        <input type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="0.00–1.00" id="ci-recovery">
+        <input type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="0.00-1.00" id="ci-recovery">
       </div>
       <div class="checkin-item">
         <label>Exertion</label>
-        <input type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="0–10" id="ci-exertion">
+        <input type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="0-10" id="ci-exertion">
       </div>
       <div class="checkin-item">
         <label>Cycle Day</label>
@@ -450,7 +534,7 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
 
   <div id="day-cards"></div>
 
-  <button class="yoga-btn" id="yoga-btn" onclick="toggleYoga()">
+  <button class="yoga-btn" id="yoga-btn" onclick="openYogaModal()">
     <span>🧘</span> <span id="yoga-label">Log Hot Yoga</span>
   </button>
 </div>
@@ -513,14 +597,11 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
 
   <div class="stat-grid" id="stat-grid"></div>
 
+  <div id="weekly-recaps"></div>
+
   <div class="card">
     <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text2)">MAIN LIFTS (Best Set This Block)</div>
     <div id="lift-bars"></div>
-  </div>
-
-  <div class="card">
-    <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text2)">WELLNESS HISTORY</div>
-    <div id="wellness-history"></div>
   </div>
 
   <div class="card">
@@ -530,6 +611,14 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
       <button onclick="logBodyweight()">Save</button>
     </div>
     <div id="bw-history" style="font-size:12px;color:var(--text2);margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:600;color:var(--text2)">WELLNESS HISTORY</div>
+      <button class="wellness-add-btn" style="width:auto;margin-bottom:0;padding:6px 12px" onclick="openWellnessAddModal()">+ Add</button>
+    </div>
+    <div id="wellness-history"></div>
   </div>
 
   <div class="card">
@@ -592,6 +681,7 @@ const PROGRAM = {
           notes: 'Depth to parallel ONLY — left knee. Box squat variation encouraged.',
           badge: 'protect', badgeText: 'KNEE',
           url: 'https://www.youtube.com/results?search_query=barbell+back+squat+form+women',
+          rpeTarget: ['6-7','7-8','7-8','8-9'],
           weekNotes: [
             'Find working weight. Start ~105-115 lb. RPE 6-7.',
             'Hold or add 5 lbs. Target ~115-125 lb. RPE 7-8.',
@@ -603,6 +693,7 @@ const PROGRAM = {
           name: 'Hip Thrust Machine', sets: [4,4,4,4], reps: '10',
           notes: 'Full ROM, 1s pause at top. Build from last known ~165 lb.',
           url: 'https://www.youtube.com/results?search_query=hip+thrust+machine+form+glutes',
+          rpeTarget: ['7','7-8','8','8-9'],
           weekNotes: [
             'Start ~145-155 lb. Find the groove again.',
             '155-165 lb. Push last set.',
@@ -614,19 +705,40 @@ const PROGRAM = {
           name: 'Cable Kickback', sets: [3,3,3,3], reps: '12/side',
           notes: 'Ankle strap, standing. Hinge slightly, extend through glute + hamstring. Zero knee load.',
           badge: 'protect', badgeText: 'KNEE',
-          url: 'https://www.youtube.com/results?search_query=cable+kickback+glute+hamstring+form'
+          url: 'https://www.youtube.com/results?search_query=cable+kickback+glute+hamstring+form',
+          rpeTarget: ['6-7','7','7-8','8'],
+          weekNotes: [
+            'RPE 6-7. Light-moderate weight. Find the mind-muscle connection.',
+            'RPE 7. Increase weight slightly if form is solid.',
+            'RPE 7-8. Push the weight up a notch.',
+            'RPE 8. Strong contractions, controlled reps.'
+          ]
         },
         {
           name: 'Single-Leg DB RDL', sets: [3,3,3,3], reps: '8/side',
           notes: 'Unilateral hinge — addresses scoliosis asymmetry. Light DB, slow eccentric. Left side will feel harder.',
           badge: 'protect', badgeText: 'SCOLIOSIS',
-          url: 'https://www.youtube.com/results?search_query=single+leg+romanian+deadlift+dumbbell+form'
+          url: 'https://www.youtube.com/results?search_query=single+leg+romanian+deadlift+dumbbell+form',
+          rpeTarget: ['6-7','7','7-8','8'],
+          weekNotes: [
+            'RPE 6-7. Light DB. Focus on balance and hinge pattern.',
+            'RPE 7. Slight weight increase. Slow eccentric.',
+            'RPE 7-8. Build load if balance is stable.',
+            'RPE 8. Heavier DB, maintain control.'
+          ]
         },
         {
           name: 'Suitcase Carry', sets: [3,3,3,3], reps: '40 steps/side',
           notes: 'Anti-lateral flexion core. Addresses scoliosis load asymmetry. Left side works harder — that\'s the point.',
           badge: 'protect', badgeText: 'SCOLIOSIS',
-          url: 'https://www.youtube.com/results?search_query=suitcase+carry+form+core'
+          url: 'https://www.youtube.com/results?search_query=suitcase+carry+form+core',
+          rpeTarget: ['5-6','6','6','6-7'],
+          weekNotes: [
+            'RPE 5-6. Moderate weight. Focus on staying upright.',
+            'RPE 6. Hold weight slightly heavier. Brace hard.',
+            'RPE 6. Same weight, focus on posture quality.',
+            'RPE 6-7. Increase load if posture stays solid.'
+          ]
         }
       ],
       finisher: 'Sauna 10-12 min. Skip in luteal phase if TTC.'
@@ -638,6 +750,7 @@ const PROGRAM = {
           name: 'Barbell Bench Press', sets: [3,4,4,4], reps: '6-8',
           notes: 'Moderate grip. Controlled descent, no bounce. Shoulder blades packed.',
           url: 'https://www.youtube.com/results?search_query=barbell+bench+press+form+women',
+          rpeTarget: ['6-7','7-8','7-8','8-9'],
           weekNotes: [
             'Start ~65-70 lb. Find bench groove. RPE 6-7.',
             'Push to 75 lb across. RPE 7-8.',
@@ -649,19 +762,34 @@ const PROGRAM = {
           name: 'DB Row', sets: [4,4,4,4], reps: '10/side',
           notes: 'Neutral grip safe for shoulder. Better scapular control than barbell rows.',
           badge: 'protect', badgeText: 'SHOULDER',
-          url: 'https://www.youtube.com/results?search_query=dumbbell+row+form'
+          url: 'https://www.youtube.com/results?search_query=dumbbell+row+form',
+          rpeTarget: ['7','7-8','8','8-9'],
+          weekNotes: [
+            'RPE 7. Moderate DB. Focus on scapular retraction.',
+            'RPE 7-8. Add 5 lbs if form is clean.',
+            'RPE 8. Push the weight. Full ROM pulls.',
+            'RPE 8-9. Heaviest DB you can row with control.'
+          ]
         },
         {
           name: 'Incline DB Press', sets: [3,3,3,3], reps: '10',
           notes: 'Neutral to moderate grip. Do NOT go wide — protects left shoulder.',
           badge: 'protect', badgeText: 'SHOULDER',
-          url: 'https://www.youtube.com/results?search_query=incline+dumbbell+press+form'
+          url: 'https://www.youtube.com/results?search_query=incline+dumbbell+press+form',
+          rpeTarget: ['6-7','7','7-8','8'],
+          weekNotes: [
+            'RPE 6-7. Light-moderate DBs. Neutral grip preferred.',
+            'RPE 7. Slight increase. Keep shoulder packed.',
+            'RPE 7-8. Push it but respect the shoulder.',
+            'RPE 8. Strong sets, controlled descent.'
+          ]
         },
         {
           name: 'Neutral-Grip Assisted Pull-Up', sets: [3,3,3,3], reps: '6-8',
           notes: 'NEUTRAL GRIP ONLY (palms facing). Wide pronated grip stresses left anterior labrum.',
           badge: 'rehab', badgeText: 'SHOULDER',
           url: 'https://www.youtube.com/results?search_query=assisted+pull+up+neutral+grip+form',
+          rpeTarget: ['7','7-8','8','8-9'],
           weekNotes: [
             'Start at 55-60 lb assist. RPE 7.',
             'Try 50 lb assist. Push for 8 reps.',
@@ -673,13 +801,27 @@ const PROGRAM = {
           name: 'Cable Face Pull', sets: [3,3,3,3], reps: '15',
           notes: 'Posterior delt + external rotators. Left shoulder rehab. NON-NEGOTIABLE — do not skip.',
           badge: 'rehab', badgeText: 'SHOULDER',
-          url: 'https://www.youtube.com/results?search_query=cable+face+pull+form+rear+delt'
+          url: 'https://www.youtube.com/results?search_query=cable+face+pull+form+rear+delt',
+          rpeTarget: ['5-6','6','6','6-7'],
+          weekNotes: [
+            'RPE 5-6. Light weight. Perfect form, feel the rear delts.',
+            'RPE 6. Slight increase. Squeeze at top.',
+            'RPE 6. Same weight, focus on external rotation.',
+            'RPE 6-7. Small bump if form is perfect.'
+          ]
         },
         {
           name: 'Band External Rotation', sets: [2,2,2,2], reps: '15/side',
           notes: 'Infraspinatus + teres minor. Left shoulder rotator cuff rehab. 4 min, massive ROI.',
           badge: 'rehab', badgeText: 'SHOULDER',
-          url: 'https://www.youtube.com/results?search_query=band+external+rotation+shoulder+rehab'
+          url: 'https://www.youtube.com/results?search_query=band+external+rotation+shoulder+rehab',
+          rpeTarget: ['5-6','6','6','6-7'],
+          weekNotes: [
+            'RPE 5-6. Light band. Controlled tempo, no rushing.',
+            'RPE 6. Same or slightly heavier band.',
+            'RPE 6. Focus on end-range hold.',
+            'RPE 6-7. Increase band tension if pain-free.'
+          ]
         }
       ],
       finisher: 'Sauna 10-12 min or steam.'
@@ -691,6 +833,7 @@ const PROGRAM = {
           name: 'Hex Bar RDL', sets: [4,4,4,4], reps: '8',
           notes: 'Hinge pattern focus. Keep load moderate. Grip fatigue note: use straps if needed.',
           url: 'https://www.youtube.com/results?search_query=hex+bar+rdl+form+romanian+deadlift',
+          rpeTarget: ['6-7','7-8','7-8','8-9'],
           weekNotes: [
             'Start ~135-145 lb. Focus on hinge form. RPE 6-7.',
             '155-165 lb. RPE 7-8.',
@@ -702,35 +845,64 @@ const PROGRAM = {
           name: 'Bulgarian Split Squat', sets: [3,3,3,3], reps: '8/side',
           notes: 'Limited ROM — do NOT chase depth. Left side: stop if posterior knee discomfort.',
           badge: 'protect', badgeText: 'KNEE',
-          url: 'https://www.youtube.com/results?search_query=bulgarian+split+squat+form'
+          url: 'https://www.youtube.com/results?search_query=bulgarian+split+squat+form',
+          rpeTarget: ['6-7','7','7-8','8'],
+          weekNotes: [
+            'RPE 6-7. Light DBs or bodyweight. Find balance.',
+            'RPE 7. Add small DBs or increase weight.',
+            'RPE 7-8. Build load if knee is happy.',
+            'RPE 8. Push it. Respect the knee limit.'
+          ]
         },
         {
           name: 'Leg Press', sets: [3,3,3,3], reps: '10',
           notes: 'Feet shoulder-width. Don\'t let knees cave. Full range OK here (vs squat).',
-          url: 'https://www.youtube.com/results?search_query=leg+press+form+foot+placement'
+          url: 'https://www.youtube.com/results?search_query=leg+press+form+foot+placement',
+          rpeTarget: ['7','7-8','8','8-9'],
+          weekNotes: [
+            'RPE 7. Moderate weight. Full ROM, no knee cave.',
+            'RPE 7-8. Add a plate if form is solid.',
+            'RPE 8. Push the weight. Strong leg drive.',
+            'RPE 8-9. Heavy sets. Go for it.'
+          ]
         },
         {
           name: 'Leg Extension', sets: [3,3,3,3], reps: '12-15',
           notes: 'VMO strengthening. Controlled — no ballistic reps. Direct knee stability investment.',
           badge: 'protect', badgeText: 'KNEE',
-          url: 'https://www.youtube.com/results?search_query=leg+extension+machine+form+vmo'
+          url: 'https://www.youtube.com/results?search_query=leg+extension+machine+form+vmo',
+          rpeTarget: ['6-7','7','7-8','8'],
+          weekNotes: [
+            'RPE 6-7. Light weight. Slow, controlled reps. Feel the VMO.',
+            'RPE 7. Slight increase. Pause at top.',
+            'RPE 7-8. Push it but keep control. No jerking.',
+            'RPE 8. Strong squeeze at top every rep.'
+          ]
         },
         {
           name: 'Lateral Band Walk', sets: [2,2,2,2], reps: '20 steps/dir',
           notes: 'Glute medius activation. Primary lateral knee stabilizer. Protects left medial compartment.',
           badge: 'protect', badgeText: 'KNEE',
-          url: 'https://www.youtube.com/results?search_query=lateral+band+walk+glute+medius'
+          url: 'https://www.youtube.com/results?search_query=lateral+band+walk+glute+medius',
+          rpeTarget: ['5-6','6','6','6-7'],
+          weekNotes: [
+            'RPE 5-6. Light band. Stay low, feel the glute med.',
+            'RPE 6. Same band, focus on tension throughout.',
+            'RPE 6. Heavier band if available. Stay controlled.',
+            'RPE 6-7. Push the band tension up.'
+          ]
         },
         {
           name: 'Conditioning: Rower Intervals', sets: [1,1,1,1], reps: 'see notes',
           notes: 'Zero impact. Safe for left knee.',
           badge: 'protect', badgeText: 'KNEE',
           url: '',
+          rpeTarget: ['8-9','8-9','8-9','8-9'],
           weekNotes: [
-            '5 × 30s hard / 90s easy. RPE 8-9.',
-            '6 × 30s hard / 90s easy. RPE 8-9.',
-            '7 × 30s hard / 60s easy. RPE 8-9.',
-            '8 × 30s hard / 60s easy. RPE 9. Push it.'
+            '5 x 30s hard / 90s easy. RPE 8-9.',
+            '6 x 30s hard / 90s easy. RPE 8-9.',
+            '7 x 30s hard / 60s easy. RPE 8-9.',
+            '8 x 30s hard / 60s easy. RPE 9. Push it.'
           ]
         }
       ],
@@ -743,39 +915,88 @@ const PROGRAM = {
           name: 'Lat Pulldown (Neutral Grip)', sets: [4,4,4,4], reps: '10',
           notes: 'Neutral or close grip — not wide. Protects left anterior shoulder.',
           badge: 'protect', badgeText: 'SHOULDER',
-          url: 'https://www.youtube.com/results?search_query=close+grip+lat+pulldown+form'
+          url: 'https://www.youtube.com/results?search_query=close+grip+lat+pulldown+form',
+          rpeTarget: ['7','7-8','8','8-9'],
+          weekNotes: [
+            'RPE 7. Moderate weight. Full stretch at top, squeeze at bottom.',
+            'RPE 7-8. Add weight. Control the eccentric.',
+            'RPE 8. Push the load. Strong pulls.',
+            'RPE 8-9. Heaviest you can pull with clean form.'
+          ]
         },
         {
           name: 'Landmine Row', sets: [3,3,3,3], reps: '10',
           notes: 'Shoulder-safe heavy rowing. Alt: cable row if landmine unavailable.',
-          url: 'https://www.youtube.com/results?search_query=landmine+row+form+back'
+          url: 'https://www.youtube.com/results?search_query=landmine+row+form+back',
+          rpeTarget: ['7','7-8','8','8-9'],
+          weekNotes: [
+            'RPE 7. Find the setup. Moderate load.',
+            'RPE 7-8. Add weight. Drive elbows back.',
+            'RPE 8. Heavy rows. Full ROM.',
+            'RPE 8-9. Push it. Controlled but heavy.'
+          ]
         },
         {
           name: 'DB Hammer Curl', sets: [3,3,3,3], reps: '12',
           notes: 'Neutral grip throughout. Targets brachialis. Easier on left shoulder than standard curl.',
-          url: 'https://www.youtube.com/results?search_query=dumbbell+hammer+curl+form'
+          url: 'https://www.youtube.com/results?search_query=dumbbell+hammer+curl+form',
+          rpeTarget: ['6-7','7','7-8','8'],
+          weekNotes: [
+            'RPE 6-7. Light-moderate DBs. Full ROM curls.',
+            'RPE 7. Increase slightly. No swinging.',
+            'RPE 7-8. Push the weight. Controlled eccentric.',
+            'RPE 8. Heavy curls, strict form.'
+          ]
         },
         {
           name: 'Tricep Pushdown', sets: [3,3,3,3], reps: '12',
           notes: 'Rope or bar attachment. Full extension, controlled eccentric.',
-          url: 'https://www.youtube.com/results?search_query=tricep+pushdown+rope+form'
+          url: 'https://www.youtube.com/results?search_query=tricep+pushdown+rope+form',
+          rpeTarget: ['6-7','7','7-8','8'],
+          weekNotes: [
+            'RPE 6-7. Light-moderate. Full lockout each rep.',
+            'RPE 7. Add a pin. Squeeze at bottom.',
+            'RPE 7-8. Push the weight. Strong lockouts.',
+            'RPE 8. Heavy pushdowns, controlled eccentric.'
+          ]
         },
         {
           name: 'Cable Lateral Raise', sets: [3,3,3,3], reps: '15',
           notes: 'Shoulder-safe medial delt work. No overhead load.',
-          url: 'https://www.youtube.com/results?search_query=cable+lateral+raise+form'
+          url: 'https://www.youtube.com/results?search_query=cable+lateral+raise+form',
+          rpeTarget: ['6-7','7','7-8','8'],
+          weekNotes: [
+            'RPE 6-7. Light cable. Feel the medial delt.',
+            'RPE 7. Slight increase. Pause at top briefly.',
+            'RPE 7-8. Push the weight. Controlled tempo.',
+            'RPE 8. Strong sets, full contraction at top.'
+          ]
         },
         {
           name: 'Dead Bug', sets: [3,3,3,3], reps: '8/side',
           notes: 'Deep core + scoliosis stability. TTC-appropriate (low IAP). Contralateral limb extension only.',
           badge: 'protect', badgeText: 'SCOLIOSIS',
-          url: 'https://www.youtube.com/results?search_query=dead+bug+exercise+form+core'
+          url: 'https://www.youtube.com/results?search_query=dead+bug+exercise+form+core',
+          rpeTarget: ['5-6','6','6','6-7'],
+          weekNotes: [
+            'RPE 5-6. Bodyweight only. Slow and controlled.',
+            'RPE 6. Add a light med ball or band.',
+            'RPE 6. Hold end position 1-2s each rep.',
+            'RPE 6-7. Add resistance or slow the tempo further.'
+          ]
         },
         {
           name: 'Pallof Press', sets: [3,3,3,3], reps: '12/side',
           notes: 'Anti-rotation — directly addresses scoliosis asymmetry. Keep hips square.',
           badge: 'protect', badgeText: 'SCOLIOSIS',
-          url: 'https://www.youtube.com/results?search_query=pallof+press+form+anti+rotation'
+          url: 'https://www.youtube.com/results?search_query=pallof+press+form+anti+rotation',
+          rpeTarget: ['5-6','6','6','6-7'],
+          weekNotes: [
+            'RPE 5-6. Light cable. Focus on resisting rotation.',
+            'RPE 6. Same or slightly more. Brace through each press.',
+            'RPE 6. Hold the press 1-2s before returning.',
+            'RPE 6-7. Increase cable weight if anti-rotation is strong.'
+          ]
         }
       ],
       finisher: 'Sauna or steam 8-10 min.'
@@ -843,29 +1064,57 @@ let state = loadState();
 function defaultState() {
   return {
     currentWeek: 0,
-    checkins: {},    // { '2026-04-07': { sleep: 0.78, recovery: 0.53, exertion: 4.5, cycle: 12 } }
-    workouts: {},    // { 'w0d0': { sets: { '0_0': { weight: 115, reps: 8, rpe: 7, done: true } } } }
-    proteinHits: {}, // { '2026-04-07': [true,true,false,false,false] }
+    checkins: {},       // { '2026-04-07': { sleep: 0.78, recovery: 0.53, exertion: 4.5, cycle: 12 } }
+    workouts: {},       // { 'w0d0': { sets: {}, notes: {}, subs: {} } }
+    workoutDates: {},   // { '2026-04-07': true }
+    proteinHits: {},    // { '2026-04-07': [true,true,false,false,false] }
     mealSelections: {}, // { '0': 1 } = slot 0, option index 1
-    yoga: {},        // { '2026-04-07': true }
-    bodyweight: [],  // [{ date: '2026-04-07', weight: 133.4 }]
-    version: 1
+    yoga: {},           // { '2026-04-07': { duration: 60, calories: 350, avgHR: 125, notes: '' } } or true (legacy)
+    bodyweight: [],     // [{ date: '2026-04-07', weight: 133.4 }]
+    version: 2
   };
 }
 
 function loadState() {
   try {
     const s = JSON.parse(localStorage.getItem('trainingApp'));
-    return s && s.version ? s : defaultState();
+    if (s && s.version) {
+      migrateState(s);
+      return s;
+    }
+    return defaultState();
   } catch { return defaultState(); }
+}
+
+function migrateState(s) {
+  // Migration: add workoutDates if missing
+  if (!s.workoutDates) {
+    s.workoutDates = {};
+  }
+  // Migration: ensure workout objects have notes/subs
+  if (s.workouts) {
+    Object.keys(s.workouts).forEach(k => {
+      if (!s.workouts[k].notes) s.workouts[k].notes = {};
+      if (!s.workouts[k].subs) s.workouts[k].subs = {};
+    });
+  }
+  // Bump version
+  s.version = 2;
 }
 
 function save() {
   localStorage.setItem('trainingApp', JSON.stringify(state));
 }
 
+// FIX #1: Timezone-safe today()
 function today() {
-  return new Date().toISOString().split('T')[0];
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// Timezone-safe date string for any Date object
+function dateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
 // =====================================================
@@ -879,7 +1128,6 @@ function showView(id, btn) {
   document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
 
   if (id === 'workout' && currentDay === null) {
-    // Auto-select the first incomplete day
     const week = state.currentWeek;
     let best = 0;
     for (let i = 0; i < PROGRAM.days.length; i++) {
@@ -899,7 +1147,6 @@ function showView(id, btn) {
 
   currentView = id;
 
-  // Show/hide timer FAB
   document.getElementById('timer-fab').classList.toggle('visible', id === 'workout');
 
   if (id === 'home') renderHome();
@@ -917,7 +1164,6 @@ function goHome() {
 // HOME
 // =====================================================
 function renderHome() {
-  // Week pills
   const pills = document.getElementById('week-pills');
   pills.innerHTML = PROGRAM.weeks.map((w, i) =>
     `<button class="week-pill ${i === state.currentWeek ? 'active' : ''}" onclick="setWeek(${i})">Wk ${w}</button>`
@@ -925,7 +1171,6 @@ function renderHome() {
 
   document.getElementById('week-label').textContent = PROGRAM.weekLabels[state.currentWeek];
 
-  // Check-in with today's date
   const ci = state.checkins[today()] || {};
   const todayDate = new Date();
   document.getElementById('checkin-date').textContent = todayDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
@@ -935,7 +1180,6 @@ function renderHome() {
   document.getElementById('ci-cycle').value = ci.cycle || '';
   updateCheckinWarning(ci);
 
-  // Day cards
   const cards = document.getElementById('day-cards');
   cards.innerHTML = PROGRAM.days.map((d, i) => {
     const key = `w${state.currentWeek}d${i}`;
@@ -956,11 +1200,25 @@ function renderHome() {
     </div>`;
   }).join('');
 
-  // Yoga
-  const yogaLogged = state.yoga[today()];
+  // Yoga display
+  const yogaData = state.yoga[today()];
   const yogaBtn = document.getElementById('yoga-btn');
-  yogaBtn.classList.toggle('logged', !!yogaLogged);
-  document.getElementById('yoga-label').textContent = yogaLogged ? 'Hot Yoga Logged ✓' : 'Log Hot Yoga';
+  const hasYoga = yogaData && (yogaData === true || (typeof yogaData === 'object' && yogaData.duration));
+  yogaBtn.classList.toggle('logged', !!hasYoga);
+
+  if (hasYoga && typeof yogaData === 'object') {
+    const parts = [];
+    if (yogaData.duration) parts.push(yogaData.duration + ' min');
+    if (yogaData.calories) parts.push(yogaData.calories + ' cal');
+    if (yogaData.avgHR) parts.push(yogaData.avgHR + ' bpm');
+    document.getElementById('yoga-label').textContent = parts.length > 0
+      ? 'Yoga: ' + parts.join(' · ')
+      : 'Hot Yoga Logged ✓';
+  } else if (hasYoga) {
+    document.getElementById('yoga-label').textContent = 'Hot Yoga Logged ✓';
+  } else {
+    document.getElementById('yoga-label').textContent = 'Log Hot Yoga';
+  }
 }
 
 function setWeek(w) {
@@ -1003,10 +1261,9 @@ function updateCheckinWarning(ci) {
     }
   }
 
-  // Check if yoga was yesterday
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  const yKey = yesterday.toISOString().split('T')[0];
+  const yKey = dateStr(yesterday);
   if (state.yoga[yKey]) {
     msgs.push('🧘 Yoga yesterday — ease into warm-up sets today.');
   }
@@ -1019,9 +1276,59 @@ function updateCheckinWarning(ci) {
   }
 }
 
-function toggleYoga() {
-  state.yoga[today()] = !state.yoga[today()];
+// =====================================================
+// YOGA MODAL (#5)
+// =====================================================
+function openYogaModal() {
+  const existing = state.yoga[today()];
+  const data = (typeof existing === 'object' && existing) ? existing : {};
+
+  const modal = document.getElementById('modal-body');
+  modal.innerHTML = `
+    <h3>🧘 Log Hot Yoga</h3>
+    <div class="modal-field">
+      <label>Duration (minutes)</label>
+      <input type="text" inputmode="numeric" id="yoga-duration" value="${data.duration || ''}" placeholder="e.g. 60">
+    </div>
+    <div class="modal-field">
+      <label>Calories</label>
+      <input type="text" inputmode="numeric" id="yoga-calories" value="${data.calories || ''}" placeholder="e.g. 350">
+    </div>
+    <div class="modal-field">
+      <label>Avg Heart Rate</label>
+      <input type="text" inputmode="numeric" id="yoga-hr" value="${data.avgHR || ''}" placeholder="e.g. 125">
+    </div>
+    <div class="modal-field">
+      <label>Notes</label>
+      <input type="text" id="yoga-notes" value="${data.notes || ''}" placeholder="e.g. hot vinyasa, felt great">
+    </div>
+    <button class="modal-save-btn" onclick="saveYoga()">Save Yoga</button>
+    ${existing ? '<button style="width:100%;margin-top:8px;padding:12px;color:var(--accent-red);font-size:14px;font-weight:600" onclick="removeYoga()">Remove Entry</button>' : ''}
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function saveYoga() {
+  const duration = parseInt(document.getElementById('yoga-duration').value) || 0;
+  const calories = parseInt(document.getElementById('yoga-calories').value) || 0;
+  const avgHR = parseInt(document.getElementById('yoga-hr').value) || 0;
+  const notes = document.getElementById('yoga-notes').value.trim();
+
+  state.yoga[today()] = {
+    duration: duration,
+    calories: calories,
+    avgHR: avgHR,
+    notes: notes
+  };
   save();
+  closeModal();
+  renderHome();
+}
+
+function removeYoga() {
+  delete state.yoga[today()];
+  save();
+  closeModal();
   renderHome();
 }
 
@@ -1037,10 +1344,11 @@ function renderWorkout() {
   document.getElementById('wo-title').textContent = `${day.name} — ${day.theme}`;
   document.getElementById('wo-sub').textContent = `${PROGRAM.weekLabels[week]} · 60 min`;
 
-  if (!state.workouts[key]) state.workouts[key] = { sets: {} };
+  if (!state.workouts[key]) state.workouts[key] = { sets: {}, notes: {}, subs: {} };
+  if (!state.workouts[key].notes) state.workouts[key].notes = {};
+  if (!state.workouts[key].subs) state.workouts[key].subs = {};
   const wo = state.workouts[key];
 
-  // Try to get previous week data for pre-fill
   const prevKey = week > 0 ? `w${week-1}d${currentDay}` : null;
   const prevWo = prevKey ? (state.workouts[prevKey] || { sets: {} }) : { sets: {} };
 
@@ -1048,6 +1356,7 @@ function renderWorkout() {
   list.innerHTML = day.exercises.map((ex, ei) => {
     const numSets = ex.sets[week] || 3;
     const weekNote = ex.weekNotes ? ex.weekNotes[week] : '';
+    const rpeTarget = ex.rpeTarget ? ex.rpeTarget[week] : '';
     const badgeHtml = ex.badge ? `<span class="exercise-badge ${ex.badge === 'protect' ? 'badge-protect' : 'badge-rehab'}">${ex.badgeText}</span>` : '';
     const infoHtml = ex.url ? `<a href="${ex.url}" target="_blank" rel="noopener" class="exercise-info-btn" onclick="event.stopPropagation()">ℹ️</a>` : '';
 
@@ -1062,7 +1371,7 @@ function renderWorkout() {
     for (let si = 0; si < numSets; si++) {
       const setKey = `${ei}_${si}`;
       const setData = wo.sets[setKey] || {};
-      const prevSet = prevWo.sets[`${ei}_${si}`] || {};
+      const prevSet = prevWo.sets ? (prevWo.sets[`${ei}_${si}`] || {}) : {};
       const wVal = setData.weight || '';
       const rVal = setData.reps || '';
       const rpeVal = setData.rpe || '';
@@ -1087,6 +1396,21 @@ function renderWorkout() {
       </div>`;
     }
 
+    // Exercise user notes + sub (#3)
+    const userNote = wo.notes[ei] || '';
+    const userSub = wo.subs[ei] || '';
+    const subVisible = userSub ? true : false;
+
+    const userNotesHtml = `<div class="exercise-user-notes">
+      <input type="text" placeholder="Notes (e.g. felt strong, shoulder twinge)" value="${escapeHtml(userNote)}"
+        onchange="saveExerciseNote('${key}',${ei},this.value)">
+      <div class="sub-toggle" onclick="toggleSubInput(this, '${key}', ${ei})">
+        ${subVisible ? '↻ Substitution:' : '↻ Log a substitution...'}
+      </div>
+      ${subVisible ? `<input type="text" placeholder="What did you sub? (e.g. hip thrust machine taken)" value="${escapeHtml(userSub)}"
+        onchange="saveExerciseSub('${key}',${ei},this.value)" style="border-color:var(--accent-orange)">` : ''}
+    </div>`;
+
     return `<div class="card exercise-card" id="ex-${ei}">
       <div class="exercise-header">
         <div style="flex:1;cursor:pointer" onclick="toggleExercise(${ei})">
@@ -1094,27 +1418,27 @@ function renderWorkout() {
             <span class="exercise-name">${ex.name}</span>
             ${badgeHtml}
           </div>
-          <div style="font-size:12px;color:var(--text2);margin-top:2px">${numSets} × ${ex.reps}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px">${numSets} x ${ex.reps}</div>
         </div>
         ${infoHtml}
         <span class="exercise-chevron" style="cursor:pointer" onclick="toggleExercise(${ei})">▸</span>
       </div>
       <div class="exercise-body">
+        ${rpeTarget ? `<div class="exercise-rpe-target">Target RPE: ${rpeTarget}</div>` : ''}
         ${weekNote ? `<div class="exercise-prescription">${weekNote}</div>` : ''}
         <div class="exercise-notes">${ex.notes}</div>
         ${setsHtml}
+        ${userNotesHtml}
       </div>
     </div>`;
   }).join('');
 
-  // Add finisher card
   if (day.finisher) {
     list.innerHTML += `<div class="card" style="text-align:center;color:var(--text2);font-size:13px;padding:14px">
       🌿 ${day.finisher}
     </div>`;
   }
 
-  // Auto-open first incomplete exercise
   const firstIncomplete = day.exercises.findIndex((ex, ei) => {
     const numSets = ex.sets[week] || 3;
     for (let si = 0; si < numSets; si++) {
@@ -1128,26 +1452,61 @@ function renderWorkout() {
   }
 }
 
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 function toggleExercise(i) {
   const el = document.getElementById(`ex-${i}`);
   el.classList.toggle('open');
 }
 
 function logSet(woKey, setKey, field, value) {
-  if (!state.workouts[woKey]) state.workouts[woKey] = { sets: {} };
+  if (!state.workouts[woKey]) state.workouts[woKey] = { sets: {}, notes: {}, subs: {} };
   if (!state.workouts[woKey].sets[setKey]) state.workouts[woKey].sets[setKey] = {};
   state.workouts[woKey].sets[setKey][field] = value;
   save();
 }
 
 function toggleSet(woKey, setKey, btn) {
-  if (!state.workouts[woKey]) state.workouts[woKey] = { sets: {} };
+  if (!state.workouts[woKey]) state.workouts[woKey] = { sets: {}, notes: {}, subs: {} };
   if (!state.workouts[woKey].sets[setKey]) state.workouts[woKey].sets[setKey] = {};
   const done = !state.workouts[woKey].sets[setKey].done;
   state.workouts[woKey].sets[setKey].done = done;
   btn.classList.toggle('done', done);
   btn.textContent = done ? '✓' : '';
+
+  // FIX #2: Record workout date when a set is marked done
+  if (done) {
+    state.workoutDates[today()] = true;
+  }
   save();
+}
+
+function saveExerciseNote(woKey, exIdx, value) {
+  if (!state.workouts[woKey]) state.workouts[woKey] = { sets: {}, notes: {}, subs: {} };
+  if (!state.workouts[woKey].notes) state.workouts[woKey].notes = {};
+  state.workouts[woKey].notes[exIdx] = value;
+  save();
+}
+
+function saveExerciseSub(woKey, exIdx, value) {
+  if (!state.workouts[woKey]) state.workouts[woKey] = { sets: {}, notes: {}, subs: {} };
+  if (!state.workouts[woKey].subs) state.workouts[woKey].subs = {};
+  state.workouts[woKey].subs[exIdx] = value;
+  save();
+}
+
+function toggleSubInput(el, woKey, exIdx) {
+  if (!state.workouts[woKey]) state.workouts[woKey] = { sets: {}, notes: {}, subs: {} };
+  if (!state.workouts[woKey].subs) state.workouts[woKey].subs = {};
+  const hasSub = state.workouts[woKey].subs[exIdx];
+  if (!hasSub) {
+    // Show the sub input by setting empty string
+    state.workouts[woKey].subs[exIdx] = '';
+    save();
+    renderWorkout();
+  }
 }
 
 // =====================================================
@@ -1197,7 +1556,6 @@ function startTimer(seconds) {
 // NUTRITION
 // =====================================================
 function renderNutrition() {
-  // Protein hits
   const hits = state.proteinHits[today()] || [false,false,false,false,false];
   const hitsEl = document.getElementById('protein-hits');
   hitsEl.innerHTML = hits.map((h, i) =>
@@ -1207,7 +1565,6 @@ function renderNutrition() {
   const filled = hits.filter(Boolean).length;
   document.getElementById('protein-count').textContent = `${filled} / 5 hits · ~${filled * 30}g protein`;
 
-  // Meal cards
   const cards = document.getElementById('meal-cards');
   cards.innerHTML = MEALS.map((meal, mi) => {
     const sel = state.mealSelections[mi] || 0;
@@ -1249,16 +1606,16 @@ function swapMeal(mi) {
 }
 
 // =====================================================
-// PROGRESS
+// PROGRESS / STATS
 // =====================================================
 function renderProgress() {
-  // Stats
+  // Stat cards
   const totalWorkouts = Object.keys(state.workouts).filter(k => {
     const wo = state.workouts[k];
     return Object.values(wo.sets).some(s => s.done);
   }).length;
 
-  const totalYoga = Object.values(state.yoga).filter(Boolean).length;
+  const totalYoga = Object.values(state.yoga).filter(v => v === true || (typeof v === 'object' && v && v.duration)).length;
 
   const proteinDays = Object.values(state.proteinHits).filter(h => h.filter(Boolean).length >= 4).length;
 
@@ -1282,6 +1639,9 @@ function renderProgress() {
       <div class="stat-label">Day Activity Streak</div>
     </div>
   `;
+
+  // Weekly Recap Cards (#7)
+  renderWeeklyRecaps();
 
   // Lift bars
   const lifts = [
@@ -1313,7 +1673,252 @@ function renderProgress() {
     </div>`;
   }).join('');
 
-  // Wellness history
+  // Bodyweight history
+  const bwHist = document.getElementById('bw-history');
+  const recent = (state.bodyweight || []).slice(-5).reverse();
+  bwHist.innerHTML = recent.length > 0
+    ? recent.map(e => `${e.date}: ${e.weight} lbs`).join('<br>')
+    : 'No entries yet';
+
+  // Wellness history (#6)
+  renderWellnessHistory();
+}
+
+// FIX #2: Streak calculation using workoutDates
+function calcStreak() {
+  let streak = 0;
+  const d = new Date();
+  for (let i = 0; i < 60; i++) {
+    const key = dateStr(d);
+    const hasWorkout = !!state.workoutDates[key];
+    const hasYoga = !!state.yoga[key];
+    const hasProtein = state.proteinHits[key] && state.proteinHits[key].filter(Boolean).length >= 3;
+
+    if (hasWorkout || hasYoga || hasProtein) streak++;
+    else if (i > 0) break;
+
+    d.setDate(d.getDate() - 1);
+  }
+  return streak;
+}
+
+// FIX #8: Duplicate bodyweight protection
+function logBodyweight() {
+  const input = document.getElementById('bw-input');
+  const val = parseFloat(input.value);
+  if (!val || val < 50 || val > 500) return;
+  if (!state.bodyweight) state.bodyweight = [];
+
+  const todayStr = today();
+  const existingIdx = state.bodyweight.findIndex(e => e.date === todayStr);
+  if (existingIdx >= 0) {
+    state.bodyweight[existingIdx].weight = val;
+  } else {
+    state.bodyweight.push({ date: todayStr, weight: val });
+  }
+  input.value = '';
+  save();
+  renderProgress();
+}
+
+// =====================================================
+// WEEKLY RECAPS (#7)
+// =====================================================
+function renderWeeklyRecaps() {
+  const container = document.getElementById('weekly-recaps');
+  let html = '';
+
+  for (let w = 0; w < 4; w++) {
+    // Check if this week has any data
+    let hasData = false;
+    for (let d = 0; d < PROGRAM.days.length; d++) {
+      const key = `w${w}d${d}`;
+      if (state.workouts[key] && Object.values(state.workouts[key].sets).some(s => s.done)) {
+        hasData = true;
+        break;
+      }
+    }
+    if (!hasData) continue;
+
+    const weekLabel = PROGRAM.weekLabels[w];
+    let narrative = '';
+
+    // Sessions completed vs planned
+    let sessionsCompleted = 0;
+    let sessionsPlanned = PROGRAM.days.length;
+    const daysDone = [];
+    const daysSkipped = [];
+
+    for (let d = 0; d < PROGRAM.days.length; d++) {
+      const key = `w${w}d${d}`;
+      const wo = state.workouts[key];
+      if (wo && Object.values(wo.sets).some(s => s.done)) {
+        sessionsCompleted++;
+        daysDone.push(PROGRAM.days[d].name);
+      } else {
+        daysSkipped.push(PROGRAM.days[d].name);
+      }
+    }
+
+    narrative += `<p><span class="recap-highlight">${sessionsCompleted} of ${sessionsPlanned} sessions</span> completed.`;
+    if (daysDone.length > 0) narrative += ` Done: ${daysDone.join(', ')}.`;
+    if (daysSkipped.length > 0 && sessionsCompleted > 0) narrative += ` <span class="recap-warn">Skipped: ${daysSkipped.join(', ')}.</span>`;
+    narrative += '</p>';
+
+    // Top lifts
+    const mainLifts = [
+      { name: 'Squat', dayIdx: 0, exIdx: 0 },
+      { name: 'Bench', dayIdx: 1, exIdx: 0 },
+      { name: 'Hex RDL', dayIdx: 2, exIdx: 0 },
+      { name: 'Hip Thrust', dayIdx: 0, exIdx: 1 },
+    ];
+    const liftResults = [];
+    mainLifts.forEach(lift => {
+      const woKey = `w${w}d${lift.dayIdx}`;
+      const wo = state.workouts[woKey];
+      if (!wo) return;
+      let best = 0;
+      for (let s = 0; s < 10; s++) {
+        const sd = wo.sets[`${lift.exIdx}_${s}`];
+        if (sd && sd.weight && sd.done) best = Math.max(best, parseFloat(sd.weight));
+      }
+      if (best > 0) liftResults.push(`${lift.name}: ${best} lb`);
+    });
+    if (liftResults.length > 0) {
+      narrative += `<p>Top lifts: ${liftResults.join(' · ')}</p>`;
+    }
+
+    // Recovery trend from checkins during this approximate week
+    // We'll scan all checkin dates and look for patterns
+    const allCheckinDates = Object.keys(state.checkins).sort();
+    let sleepSum = 0, sleepCount = 0, recSum = 0, recCount = 0;
+    let cycleNote = '';
+    allCheckinDates.forEach(date => {
+      const ci = state.checkins[date];
+      // Approximate: just show all checkins for now (block is 4 weeks)
+      if (ci.sleep) { sleepSum += ci.sleep; sleepCount++; }
+      if (ci.recovery) { recSum += ci.recovery; recCount++; }
+      if (ci.cycle && ci.cycle === 1) {
+        const d = new Date(date + 'T12:00:00');
+        cycleNote = `New cycle started CD1 on ${d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}.`;
+      }
+    });
+
+    // Actually scope checkins to approximate week ranges
+    // Week w roughly corresponds to 7-day windows. Let's use a simple approach:
+    // find the first workout date in this week to anchor
+    const weekCheckins = [];
+    // For simplicity, group by all dates we have
+    if (w === state.currentWeek || hasData) {
+      // Gather checkins more smartly per week window
+      // We don't have explicit week dates, so we'll show per-week checkins
+      // based on what's available. Let's just show aggregate for this week's card.
+      let wSleepSum = 0, wSleepCount = 0, wRecSum = 0, wRecCount = 0;
+      let wCycleNote = '';
+
+      // We'll approximate by taking the most recent 7 days for current week
+      // and progressively older for earlier weeks
+      const recentDates = allCheckinDates.slice(-(7 * (4 - w)), allCheckinDates.length - (7 * (3 - w)) || undefined);
+      recentDates.forEach(date => {
+        const ci = state.checkins[date];
+        if (ci.sleep) { wSleepSum += ci.sleep; wSleepCount++; }
+        if (ci.recovery) { wRecSum += ci.recovery; wRecCount++; }
+        if (ci.cycle && parseInt(ci.cycle) === 1) {
+          const d = new Date(date + 'T12:00:00');
+          wCycleNote = `New cycle started CD1 on ${d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}.`;
+        }
+      });
+
+      if (wSleepCount > 0 || wRecCount > 0) {
+        const avgSleep = wSleepCount > 0 ? (wSleepSum / wSleepCount).toFixed(2) : '--';
+        const avgRec = wRecCount > 0 ? (wRecSum / wRecCount).toFixed(2) : '--';
+        let recText = `Avg sleep score: ${avgSleep}, avg recovery: ${avgRec}.`;
+        if (wRecCount > 0 && (wRecSum / wRecCount) < 0.4) {
+          recText += ' <span class="recap-warn">Recovery was rough this week.</span>';
+        }
+        narrative += `<p>${recText}</p>`;
+      }
+      if (wCycleNote) {
+        narrative += `<p>${wCycleNote}</p>`;
+      }
+    }
+
+    // Yoga for this block (approximate)
+    const yogaDates = Object.keys(state.yoga).filter(k => state.yoga[k]);
+    if (yogaDates.length > 0) {
+      // Show yoga done during this approximate period
+      const yogaThisWeek = yogaDates.filter((_, idx) => {
+        // Simple: just show all yoga in the current week's recap if it's current week
+        return w === state.currentWeek;
+      });
+      if (w === state.currentWeek && yogaDates.length > 0) {
+        let yogaText = '';
+        const recentYoga = yogaDates.slice(-3);
+        recentYoga.forEach(yd => {
+          const yData = state.yoga[yd];
+          if (typeof yData === 'object' && yData.duration) {
+            const parts = [yData.duration + ' min'];
+            if (yData.calories) parts.push(yData.calories + ' cal');
+            if (yData.avgHR) parts.push(yData.avgHR + ' bpm');
+            yogaText += `Yoga on ${yd}: ${parts.join(', ')}. `;
+            if (yData.notes) yogaText += `(${yData.notes}) `;
+          } else {
+            yogaText += `Yoga on ${yd}. `;
+          }
+        });
+        if (yogaText) narrative += `<p>🧘 ${yogaText.trim()}</p>`;
+      }
+    }
+
+    // Bodyweight
+    if (state.bodyweight && state.bodyweight.length > 0) {
+      const recentBW = state.bodyweight.slice(-1)[0];
+      if (w === state.currentWeek) {
+        narrative += `<p>Latest bodyweight: ${recentBW.weight} lbs (${recentBW.date})</p>`;
+      }
+    }
+
+    // Exercise notes and subs for this week
+    const weekNotesList = [];
+    for (let d = 0; d < PROGRAM.days.length; d++) {
+      const key = `w${w}d${d}`;
+      const wo = state.workouts[key];
+      if (!wo) continue;
+      if (wo.notes) {
+        Object.keys(wo.notes).forEach(ei => {
+          if (wo.notes[ei]) {
+            const exName = PROGRAM.days[d].exercises[ei] ? PROGRAM.days[d].exercises[ei].name : `Exercise ${ei}`;
+            weekNotesList.push(`${exName}: "${wo.notes[ei]}"`);
+          }
+        });
+      }
+      if (wo.subs) {
+        Object.keys(wo.subs).forEach(ei => {
+          if (wo.subs[ei]) {
+            const exName = PROGRAM.days[d].exercises[ei] ? PROGRAM.days[d].exercises[ei].name : `Exercise ${ei}`;
+            weekNotesList.push(`↻ ${exName} subbed: "${wo.subs[ei]}"`);
+          }
+        });
+      }
+    }
+    if (weekNotesList.length > 0) {
+      narrative += `<p>Notes: ${weekNotesList.join(' · ')}</p>`;
+    }
+
+    html += `<div class="recap-card">
+      <div class="recap-header">${weekLabel}</div>
+      <div class="recap-daterange">Week ${w + 1} of Block 1</div>
+      <div class="recap-body">${narrative}</div>
+    </div>`;
+  }
+
+  container.innerHTML = html || '<div class="card" style="text-align:center;color:var(--text2);font-size:13px;padding:14px">No workout data yet. Start logging to see your weekly recap.</div>';
+}
+
+// =====================================================
+// WELLNESS HISTORY (#6)
+// =====================================================
+function renderWellnessHistory() {
   const wellEl = document.getElementById('wellness-history');
   const ciDates = Object.keys(state.checkins).sort().reverse().slice(0, 14);
   if (ciDates.length > 0) {
@@ -1326,7 +1931,7 @@ function renderProgress() {
       const recClass = ci.recovery >= 0.5 ? 'wellness-good' : ci.recovery >= 0.35 ? 'wellness-ok' : 'wellness-low';
       const extClass = ci.exertion <= 6 ? 'wellness-good' : ci.exertion <= 8 ? 'wellness-ok' : 'wellness-low';
 
-      return `<tr>
+      return `<tr class="clickable-row" onclick="openWellnessEditModal('${date}')">
         <td>${label}</td>
         <td class="${ci.sleep ? sleepClass : ''}">${ci.sleep || '—'}</td>
         <td class="${ci.recovery ? recClass : ''}">${ci.recovery || '—'}</td>
@@ -1342,43 +1947,98 @@ function renderProgress() {
   } else {
     wellEl.innerHTML = '<div style="font-size:13px;color:var(--text2)">No check-ins yet. Log from the Home screen.</div>';
   }
-
-  // Bodyweight history
-  const bwHist = document.getElementById('bw-history');
-  const recent = (state.bodyweight || []).slice(-5).reverse();
-  bwHist.innerHTML = recent.length > 0
-    ? recent.map(e => `${e.date}: ${e.weight} lbs`).join('<br>')
-    : 'No entries yet';
 }
 
-function calcStreak() {
-  let streak = 0;
-  const d = new Date();
-  for (let i = 0; i < 60; i++) {
-    const key = d.toISOString().split('T')[0];
-    const hasWorkout = Object.keys(state.workouts).some(k => {
-      const wo = state.workouts[k];
-      return Object.values(wo.sets).some(s => s.done);
-    });
-    const hasYoga = state.yoga[key];
-    const hasProtein = state.proteinHits[key] && state.proteinHits[key].filter(Boolean).length >= 3;
+function openWellnessEditModal(date) {
+  const ci = state.checkins[date] || {};
+  const d = new Date(date + 'T12:00:00');
+  const label = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
-    if (hasWorkout || hasYoga || hasProtein) streak++;
-    else if (i > 0) break;
-
-    d.setDate(d.getDate() - 1);
-  }
-  return streak;
+  const modal = document.getElementById('modal-body');
+  modal.innerHTML = `
+    <h3>Edit Check-in</h3>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px">${label}</div>
+    <div class="modal-field">
+      <label>Sleep Score</label>
+      <input type="text" inputmode="decimal" id="well-edit-sleep" value="${ci.sleep || ''}" placeholder="0.00-1.00">
+    </div>
+    <div class="modal-field">
+      <label>Recovery</label>
+      <input type="text" inputmode="decimal" id="well-edit-recovery" value="${ci.recovery || ''}" placeholder="0.00-1.00">
+    </div>
+    <div class="modal-field">
+      <label>Exertion</label>
+      <input type="text" inputmode="decimal" id="well-edit-exertion" value="${ci.exertion || ''}" placeholder="0-10">
+    </div>
+    <div class="modal-field">
+      <label>Cycle Day</label>
+      <input type="text" inputmode="numeric" id="well-edit-cycle" value="${ci.cycle || ''}" placeholder="Day #">
+    </div>
+    <button class="modal-save-btn" onclick="saveWellnessEdit('${date}')">Save</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
 }
 
-function logBodyweight() {
-  const input = document.getElementById('bw-input');
-  const val = parseFloat(input.value);
-  if (!val || val < 50 || val > 500) return;
-  if (!state.bodyweight) state.bodyweight = [];
-  state.bodyweight.push({ date: today(), weight: val });
-  input.value = '';
+function saveWellnessEdit(date) {
+  if (!state.checkins[date]) state.checkins[date] = {};
+  const sleep = parseFloat(document.getElementById('well-edit-sleep').value) || 0;
+  const recovery = parseFloat(document.getElementById('well-edit-recovery').value) || 0;
+  const exertion = parseFloat(document.getElementById('well-edit-exertion').value) || 0;
+  const cycle = parseInt(document.getElementById('well-edit-cycle').value) || 0;
+
+  if (sleep) state.checkins[date].sleep = sleep;
+  if (recovery) state.checkins[date].recovery = recovery;
+  if (exertion) state.checkins[date].exertion = exertion;
+  if (cycle) state.checkins[date].cycle = cycle;
   save();
+  closeModal();
+  renderProgress();
+}
+
+function openWellnessAddModal() {
+  const modal = document.getElementById('modal-body');
+  modal.innerHTML = `
+    <h3>Add Past Check-in</h3>
+    <div class="modal-field">
+      <label>Date</label>
+      <input type="date" id="well-add-date" value="${today()}" style="color-scheme:dark">
+    </div>
+    <div class="modal-field">
+      <label>Sleep Score</label>
+      <input type="text" inputmode="decimal" id="well-add-sleep" placeholder="0.00-1.00">
+    </div>
+    <div class="modal-field">
+      <label>Recovery</label>
+      <input type="text" inputmode="decimal" id="well-add-recovery" placeholder="0.00-1.00">
+    </div>
+    <div class="modal-field">
+      <label>Exertion</label>
+      <input type="text" inputmode="decimal" id="well-add-exertion" placeholder="0-10">
+    </div>
+    <div class="modal-field">
+      <label>Cycle Day</label>
+      <input type="text" inputmode="numeric" id="well-add-cycle" placeholder="Day #">
+    </div>
+    <button class="modal-save-btn" onclick="saveWellnessAdd()">Save</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function saveWellnessAdd() {
+  const date = document.getElementById('well-add-date').value;
+  if (!date) return;
+  if (!state.checkins[date]) state.checkins[date] = {};
+  const sleep = parseFloat(document.getElementById('well-add-sleep').value) || 0;
+  const recovery = parseFloat(document.getElementById('well-add-recovery').value) || 0;
+  const exertion = parseFloat(document.getElementById('well-add-exertion').value) || 0;
+  const cycle = parseInt(document.getElementById('well-add-cycle').value) || 0;
+
+  if (sleep) state.checkins[date].sleep = sleep;
+  if (recovery) state.checkins[date].recovery = recovery;
+  if (exertion) state.checkins[date].exertion = exertion;
+  if (cycle) state.checkins[date].cycle = cycle;
+  save();
+  closeModal();
   renderProgress();
 }
 
@@ -1410,6 +2070,7 @@ function doImport() {
   try {
     const data = JSON.parse(document.getElementById('import-text').value);
     if (data.version) {
+      migrateState(data);
       state = data;
       save();
       closeModal();
