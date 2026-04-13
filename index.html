@@ -1724,9 +1724,37 @@ function logBodyweight() {
 // =====================================================
 // WEEKLY RECAPS (#7)
 // =====================================================
+
+// Determine block start date from earliest activity, then map dates to week numbers
+function getBlockStartDate() {
+  const allDates = [
+    ...Object.keys(state.workoutDates),
+    ...Object.keys(state.checkins),
+    ...Object.keys(state.yoga).filter(k => state.yoga[k]),
+  ].filter(Boolean).sort();
+  if (allDates.length === 0) return null;
+  // Block starts on the Monday of the earliest activity week
+  const first = new Date(allDates[0] + 'T12:00:00');
+  const dayOfWeek = first.getDay(); // 0=Sun, 1=Mon
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(first);
+  monday.setDate(monday.getDate() + mondayOffset);
+  return dateStr(monday);
+}
+
+function dateToWeek(dateString, blockStart) {
+  if (!blockStart) return -1;
+  const d = new Date(dateString + 'T12:00:00');
+  const s = new Date(blockStart + 'T12:00:00');
+  const diff = Math.floor((d - s) / (1000 * 60 * 60 * 24));
+  const week = Math.floor(diff / 7);
+  return (week >= 0 && week < 4) ? week : -1;
+}
+
 function renderWeeklyRecaps() {
   const container = document.getElementById('weekly-recaps');
   let html = '';
+  const blockStart = getBlockStartDate();
 
   for (let w = 0; w < 4; w++) {
     // Check if this week has any data
@@ -1788,38 +1816,13 @@ function renderWeeklyRecaps() {
       narrative += `<p>Top lifts: ${liftResults.join(' · ')}</p>`;
     }
 
-    // Recovery trend from checkins during this approximate week
-    // We'll scan all checkin dates and look for patterns
+    // Recovery trend — checkins scoped to this week by date
     const allCheckinDates = Object.keys(state.checkins).sort();
-    let sleepSum = 0, sleepCount = 0, recSum = 0, recCount = 0;
-    let cycleNote = '';
-    allCheckinDates.forEach(date => {
-      const ci = state.checkins[date];
-      // Approximate: just show all checkins for now (block is 4 weeks)
-      if (ci.sleep) { sleepSum += ci.sleep; sleepCount++; }
-      if (ci.recovery) { recSum += ci.recovery; recCount++; }
-      if (ci.cycle && ci.cycle === 1) {
-        const d = new Date(date + 'T12:00:00');
-        cycleNote = `New cycle started CD1 on ${d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}.`;
-      }
-    });
-
-    // Actually scope checkins to approximate week ranges
-    // Week w roughly corresponds to 7-day windows. Let's use a simple approach:
-    // find the first workout date in this week to anchor
-    const weekCheckins = [];
-    // For simplicity, group by all dates we have
-    if (w === state.currentWeek || hasData) {
-      // Gather checkins more smartly per week window
-      // We don't have explicit week dates, so we'll show per-week checkins
-      // based on what's available. Let's just show aggregate for this week's card.
+    const weekCheckinDates = allCheckinDates.filter(d => dateToWeek(d, blockStart) === w);
+    {
       let wSleepSum = 0, wSleepCount = 0, wRecSum = 0, wRecCount = 0;
       let wCycleNote = '';
-
-      // We'll approximate by taking the most recent 7 days for current week
-      // and progressively older for earlier weeks
-      const recentDates = allCheckinDates.slice(-(7 * (4 - w)), allCheckinDates.length - (7 * (3 - w)) || undefined);
-      recentDates.forEach(date => {
+      weekCheckinDates.forEach(date => {
         const ci = state.checkins[date];
         if (ci.sleep) { wSleepSum += ci.sleep; wSleepCount++; }
         if (ci.recovery) { wRecSum += ci.recovery; wRecCount++; }
@@ -1843,38 +1846,31 @@ function renderWeeklyRecaps() {
       }
     }
 
-    // Yoga for this block (approximate)
-    const yogaDates = Object.keys(state.yoga).filter(k => state.yoga[k]);
+    // Yoga — scoped to this week by date
+    const yogaDates = Object.keys(state.yoga).filter(k => state.yoga[k] && dateToWeek(k, blockStart) === w);
     if (yogaDates.length > 0) {
-      // Show yoga done during this approximate period
-      const yogaThisWeek = yogaDates.filter((_, idx) => {
-        // Simple: just show all yoga in the current week's recap if it's current week
-        return w === state.currentWeek;
+      let yogaText = '';
+      yogaDates.forEach(yd => {
+        const yData = state.yoga[yd];
+        if (typeof yData === 'object' && yData.duration) {
+          const parts = [yData.duration + ' min'];
+          if (yData.calories) parts.push(yData.calories + ' cal');
+          if (yData.avgHR) parts.push(yData.avgHR + ' bpm');
+          yogaText += `Yoga on ${yd}: ${parts.join(', ')}. `;
+          if (yData.notes) yogaText += `(${yData.notes}) `;
+        } else {
+          yogaText += `Yoga on ${yd}. `;
+        }
       });
-      if (w === state.currentWeek && yogaDates.length > 0) {
-        let yogaText = '';
-        const recentYoga = yogaDates.slice(-3);
-        recentYoga.forEach(yd => {
-          const yData = state.yoga[yd];
-          if (typeof yData === 'object' && yData.duration) {
-            const parts = [yData.duration + ' min'];
-            if (yData.calories) parts.push(yData.calories + ' cal');
-            if (yData.avgHR) parts.push(yData.avgHR + ' bpm');
-            yogaText += `Yoga on ${yd}: ${parts.join(', ')}. `;
-            if (yData.notes) yogaText += `(${yData.notes}) `;
-          } else {
-            yogaText += `Yoga on ${yd}. `;
-          }
-        });
-        if (yogaText) narrative += `<p>🧘 ${yogaText.trim()}</p>`;
-      }
+      if (yogaText) narrative += `<p>🧘 ${yogaText.trim()}</p>`;
     }
 
-    // Bodyweight
+    // Bodyweight — scoped to this week by date
     if (state.bodyweight && state.bodyweight.length > 0) {
-      const recentBW = state.bodyweight.slice(-1)[0];
-      if (w === state.currentWeek) {
-        narrative += `<p>Latest bodyweight: ${recentBW.weight} lbs (${recentBW.date})</p>`;
+      const weekBW = state.bodyweight.filter(e => dateToWeek(e.date, blockStart) === w);
+      if (weekBW.length > 0) {
+        const latestBW = weekBW[weekBW.length - 1];
+        narrative += `<p>Latest bodyweight: ${latestBW.weight} lbs (${latestBW.date})</p>`;
       }
     }
 
