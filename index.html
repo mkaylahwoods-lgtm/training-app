@@ -495,6 +495,130 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   color: var(--accent-purple);
   font-size: 13px; font-weight: 600;
 }
+
+/* === BLOCK CALENDAR === */
+.bc-grid { display: grid; gap: 4px; }
+.bc-row { display: grid; grid-template-columns: 44px repeat(4, 1fr); gap: 4px; align-items: center; }
+.bc-week-label { font-size: 10px; color: var(--text2); text-align: right; padding-right: 4px; }
+.bc-cell {
+  aspect-ratio: 1/1;
+  max-height: 64px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: var(--text2);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.bc-cell:active { transform: scale(0.92); }
+.bc-cell.bc-full { background: var(--accent-green); border-color: var(--accent-green); color: #fff; }
+.bc-cell.bc-partial { background: var(--accent-gold); border-color: var(--accent-gold); color: #000; }
+.bc-cell.bc-context { background: rgba(59,130,246,0.2); border-color: var(--accent-blue); color: var(--accent-blue); }
+.bc-cell.bc-current { outline: 2px solid var(--accent-purple); outline-offset: 1px; }
+.bc-header { font-size: 10px; color: var(--text2); text-align: center; }
+.bc-legend {
+  display: inline-block; width: 10px; height: 10px; border-radius: 3px;
+  margin-right: 3px; vertical-align: middle; border: 1px solid var(--border);
+}
+.bc-legend.bc-full { background: var(--accent-green); border-color: var(--accent-green); }
+.bc-legend.bc-partial { background: var(--accent-gold); border-color: var(--accent-gold); }
+.bc-legend.bc-context { background: rgba(59,130,246,0.2); border-color: var(--accent-blue); }
+.bc-legend.bc-empty { background: var(--surface); }
+
+/* === PEPTIDES === */
+.pep-subnav { display: flex; gap: 8px; margin-bottom: 16px; }
+.pep-subnav button {
+  flex: 1; padding: 8px; text-align: center;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 13px; font-weight: 600;
+  transition: all 0.2s;
+}
+.pep-subnav button.active {
+  background: var(--accent-purple);
+  border-color: var(--accent-purple);
+  color: #fff;
+}
+.pep-card { padding: 14px 16px; margin-bottom: 10px; }
+.pep-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.pep-card-title { font-size: 14px; font-weight: 700; }
+.pep-card-meta { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.pep-stat-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; color: var(--text2); }
+.pep-stat-row b { color: var(--text); font-weight: 600; }
+.pep-action-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; padding: 12px; margin-top: 8px;
+  background: rgba(168,85,247,0.12);
+  border: 1px solid rgba(168,85,247,0.3);
+  border-radius: var(--radius-sm);
+  color: var(--accent-purple);
+  font-size: 13px; font-weight: 600;
+}
+.pep-action-btn.secondary {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text2);
+}
+.pep-action-btn.danger {
+  background: rgba(239,68,68,0.08);
+  border-color: rgba(239,68,68,0.3);
+  color: var(--accent-red);
+}
+.pep-site-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+.pep-site {
+  padding: 10px 4px; text-align: center;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 11px; color: var(--text);
+  cursor: pointer;
+}
+.pep-site.recent { border-color: var(--accent-orange); color: var(--accent-orange); }
+.pep-site.selected { background: var(--accent-purple); border-color: var(--accent-purple); color: #fff; }
+.pep-dose-presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.pep-dose-preset {
+  flex: 1; min-width: 60px; padding: 10px 6px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 600; color: var(--text);
+  cursor: pointer; text-align: center;
+}
+.pep-dose-preset.selected { background: var(--accent-purple); border-color: var(--accent-purple); color: #fff; }
+.pep-dose-preset small { display: block; color: var(--text2); font-size: 10px; font-weight: 400; margin-top: 2px; }
+.pep-dose-preset.selected small { color: rgba(255,255,255,0.8); }
+.pep-calc-output {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  font-size: 12px; color: var(--text2); margin-top: 8px;
+  line-height: 1.6;
+}
+.pep-calc-output b { color: var(--accent-purple); }
+.pep-empty { text-align: center; color: var(--text2); font-size: 13px; padding: 20px; }
+.pep-log-entry {
+  padding: 10px 12px; background: var(--surface); border-radius: var(--radius-sm);
+  margin-bottom: 6px; font-size: 12px;
+  display: flex; justify-content: space-between; gap: 8px;
+}
+.pep-log-entry .pep-log-main { color: var(--text); }
+.pep-log-entry .pep-log-meta { color: var(--text2); font-size: 11px; }
+.modal-field label.pep-seed-label {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 14px; color: var(--text);
+  text-transform: none; letter-spacing: 0;
+  padding: 6px 0;
+}
+.pep-seed-label input[type="checkbox"] { flex-shrink: 0; margin-top: 2px; width: auto; }
+.pep-seed-label span { flex: 1; min-width: 0; line-height: 1.4; }
+.modal-field label.pep-seed-sublabel {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 12px; color: var(--text2);
+  margin-left: 24px; margin-top: 4px;
+  text-transform: none; letter-spacing: 0;
+}
+.pep-seed-sublabel input[type="checkbox"] { flex-shrink: 0; margin-top: 2px; width: auto; }
+.pep-seed-sublabel span { flex: 1; min-width: 0; line-height: 1.4; }
 </style>
 </head>
 <body>
@@ -532,11 +656,46 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
     </div>
   </div>
 
+  <div class="card" id="protein-card" style="padding:14px 16px">
+    <div style="font-size:13px;font-weight:600;margin-bottom:4px;color:var(--text2)">5 PROTEIN HITS</div>
+    <div class="protein-hits" id="protein-hits" style="margin:10px 0 4px"></div>
+    <div class="protein-count" id="protein-count" style="margin-bottom:0">0 / 5 hits · ~0g protein</div>
+  </div>
+
   <div id="day-cards"></div>
 
   <button class="yoga-btn" id="yoga-btn" onclick="openYogaModal()">
     <span>🧘</span> <span id="yoga-label">Log Hot Yoga</span>
   </button>
+
+  <details style="margin-top:14px">
+    <summary style="font-size:12px;color:var(--text2);cursor:pointer;padding:6px 0">Fuel reference (VSG supplements · hydration · OAS)</summary>
+    <div class="card" style="margin-top:8px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text2)">DAILY SUPPLEMENTS (VSG)</div>
+      <div class="supplement-list">
+        ◆ Calcium Citrate + D3<br>
+        ◆ B12 (sublingual or injection)<br>
+        ◆ Iron (if labs indicate)<br>
+        ◆ Prenatal vitamin (TTC)
+      </div>
+    </div>
+    <div class="card" style="margin-top:8px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text2)">HYDRATION</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.5">
+        64+ oz daily · Sip, don't gulp (VSG)<br>
+        No liquids 30 min before/after meals
+      </div>
+    </div>
+    <div class="card" style="margin-top:8px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text2)">OAS QUICK REFERENCE</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6">
+        <span style="color:var(--accent-green)">✓ Safe:</span> All cooked/roasted fruits &amp; veggies<br>
+        <span style="color:var(--accent-red)">✗ Avoid:</span> ALL nuts (react even roasted)<br>
+        <span style="color:var(--accent-red)">✗ Avoid:</span> ALL raw: apples, cherries, peaches, pears, plums, carrots, celery, melons, bananas, zucchini, cucumber, tomatoes, oranges, kiwi<br>
+        <span style="color:var(--accent-orange)">⚠ Cook first:</span> Above fruits/veggies are safe when cooked, roasted, canned, or baked
+      </div>
+    </div>
+  </details>
 </div>
 
 <!-- ==================== WORKOUT VIEW ==================== -->
@@ -548,46 +707,12 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
       <div id="wo-sub" class="page-sub" style="margin-bottom:0;font-size:12px"></div>
     </div>
   </div>
+  <div class="card day-notes-card" style="padding:12px 14px;margin-bottom:12px">
+    <label style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">Day notes</label>
+    <textarea id="wo-day-notes" placeholder="lifestyle, sleep, mood, anything that affected today"
+      style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-size:13px;font-family:inherit;resize:vertical;min-height:46px"></textarea>
+  </div>
   <div id="exercise-list"></div>
-</div>
-
-<!-- ==================== NUTRITION VIEW ==================== -->
-<div id="view-nutrition" class="view">
-  <div class="page-title">Fuel</div>
-  <div class="page-sub">5 Protein Hits · Flex Framework</div>
-
-  <div class="protein-hits" id="protein-hits"></div>
-  <div class="protein-count" id="protein-count">0 / 5 hits · ~0g protein</div>
-
-  <div id="meal-cards"></div>
-
-  <div class="card" style="margin-top:8px">
-    <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text2)">DAILY SUPPLEMENTS (VSG)</div>
-    <div class="supplement-list">
-      ◆ Calcium Citrate + D3<br>
-      ◆ B12 (sublingual or injection)<br>
-      ◆ Iron (if labs indicate)<br>
-      ◆ Prenatal vitamin (TTC)
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:8px">
-    <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text2)">HYDRATION</div>
-    <div style="font-size:13px;color:var(--text2);line-height:1.5">
-      64+ oz daily · Sip, don't gulp (VSG)<br>
-      No liquids 30 min before/after meals
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:8px">
-    <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text2)">OAS QUICK REFERENCE</div>
-    <div style="font-size:12px;color:var(--text2);line-height:1.6">
-      <span style="color:var(--accent-green)">✓ Safe:</span> All cooked/roasted fruits & veggies<br>
-      <span style="color:var(--accent-red)">✗ Avoid:</span> ALL nuts (react even roasted)<br>
-      <span style="color:var(--accent-red)">✗ Avoid:</span> ALL raw: apples, cherries, peaches, pears, plums, carrots, celery, melons, bananas, zucchini, cucumber, tomatoes, oranges, kiwi<br>
-      <span style="color:var(--accent-orange)">⚠ Cook first:</span> Above fruits/veggies are safe when cooked, roasted, canned, or baked
-    </div>
-  </div>
 </div>
 
 <!-- ==================== PROGRESS VIEW ==================== -->
@@ -596,6 +721,20 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   <div class="page-sub">Block 1 Tracking</div>
 
   <div class="stat-grid" id="stat-grid"></div>
+
+  <div class="card" id="block-calendar-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:600;color:var(--text2)">BLOCK CALENDAR</div>
+      <div id="block-completion" style="font-size:12px;color:var(--accent-purple);font-weight:600"></div>
+    </div>
+    <div id="block-calendar"></div>
+    <div style="display:flex;gap:12px;margin-top:10px;font-size:10px;color:var(--text2);flex-wrap:wrap">
+      <span><span class="bc-legend bc-full"></span> full</span>
+      <span><span class="bc-legend bc-partial"></span> partial</span>
+      <span><span class="bc-legend bc-context"></span> notes only</span>
+      <span><span class="bc-legend bc-empty"></span> empty</span>
+    </div>
+  </div>
 
   <div id="weekly-recaps"></div>
 
@@ -629,6 +768,20 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   </div>
 </div>
 
+<!-- ==================== PEPTIDES VIEW ==================== -->
+<div id="view-peptides" class="view">
+  <div class="page-title">Peptides</div>
+  <div class="page-sub" id="pep-sub">Track doses, vials & cycles</div>
+
+  <div class="pep-subnav">
+    <button id="pep-tab-log" class="active" onclick="setPepTab('log')">Log</button>
+    <button id="pep-tab-vials" onclick="setPepTab('vials')">Vials</button>
+    <button id="pep-tab-cycles" onclick="setPepTab('cycles')">Cycles</button>
+  </div>
+
+  <div id="pep-content"></div>
+</div>
+
 <!-- ==================== REST TIMER === -->
 <div class="timer-presets" id="timer-presets">
   <button class="timer-preset" onclick="startTimer(180)">3:00</button>
@@ -655,13 +808,13 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M4 12h16M2 6.5h2.5M2 17.5h2.5M19.5 6.5H22M19.5 17.5H22"/></svg>
     Work
   </button>
-  <button onclick="showView('nutrition',this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/></svg>
-    Fuel
-  </button>
   <button onclick="showView('progress',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
     Stats
+  </button>
+  <button onclick="showView('peptides',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5c-3 4-5 7-5 10a5 5 0 0 0 10 0c0-3-2-6-5-10z"/></svg>
+    Peptides
   </button>
 </nav>
 
@@ -1005,58 +1158,6 @@ const PROGRAM = {
 };
 
 // =====================================================
-// DATA: NUTRITION
-// =====================================================
-const MEALS = [
-  {
-    slot: 'Hit 1 — Breakfast',
-    options: [
-      { name: 'Greek Yogurt Bowl', detail: '1 cup Greek yogurt + chia seeds + honey · ~30g protein', badges: ['safe'] },
-      { name: 'Egg Scramble', detail: '3 eggs + cheese + cooked spinach · ~28g protein', badges: ['safe'] },
-      { name: 'Protein Shake', detail: 'Whey + frozen cooked fruit + oat milk · ~30g protein', badges: ['safe'] },
-    ]
-  },
-  {
-    slot: 'Hit 2 — Mid-Morning',
-    options: [
-      { name: 'Turkey Roll-Ups', detail: '4 oz deli turkey + cheese + mustard · ~28g protein', badges: ['safe'] },
-      { name: 'Cottage Cheese + Cooked Peaches', detail: '1 cup cottage cheese + canned peaches · ~28g protein', badges: ['cook'] },
-      { name: 'Protein Bar', detail: 'Nut-free bar (RXBar Sun Butter, Built Bar) · ~20-25g protein', badges: ['safe'] },
-    ]
-  },
-  {
-    slot: 'Hit 3 — Lunch',
-    options: [
-      { name: 'Grilled Chicken + Rice', detail: '5 oz chicken + rice + roasted veggies · ~35g protein', badges: ['safe'] },
-      { name: 'Tuna Salad', detail: 'Canned tuna + mayo + crackers (no raw celery) · ~30g protein', badges: ['safe'] },
-      { name: 'Burger Patty + Cheese', detail: '6 oz beef patty + cheddar + side · ~36g protein', badges: ['safe'] },
-    ]
-  },
-  {
-    slot: 'Hit 4 — Afternoon',
-    options: [
-      { name: 'Beef Jerky + Cheese', detail: '2 oz jerky + string cheese · ~25g protein', badges: ['safe'] },
-      { name: 'Edamame', detail: '1.5 cups shelled edamame · ~27g protein', badges: ['safe'] },
-      { name: 'Protein Shake', detail: 'Whey + oat milk + PB powder (if tolerated) · ~30g protein', badges: ['safe'] },
-    ]
-  },
-  {
-    slot: 'Hit 5 — Dinner',
-    options: [
-      { name: 'Salmon + Sweet Potato', detail: '6 oz salmon + roasted sweet potato · ~34g protein', badges: ['safe'] },
-      { name: 'Steak + Grilled Zucchini', detail: '5 oz steak + cooked zucchini + rice · ~35g protein', badges: ['cook'] },
-      { name: 'Chicken Thighs + Pasta', detail: '5 oz chicken thighs + pasta + marinara · ~32g protein', badges: ['safe'] },
-    ]
-  },
-  {
-    slot: 'Flex Meal',
-    options: [
-      { name: 'Whatever Sounds Good', detail: 'Pizza, ice cream, chips, wine, queso — no restrictions. Sized to VSG tolerance. This is built into the plan.', badges: ['flex'] },
-    ]
-  }
-];
-
-// =====================================================
 // STATE
 // =====================================================
 let state = loadState();
@@ -1065,13 +1166,30 @@ function defaultState() {
   return {
     currentWeek: 0,
     checkins: {},       // { '2026-04-07': { sleep: 0.78, recovery: 0.53, exertion: 4.5, cycle: 12 } }
-    workouts: {},       // { 'w0d0': { sets: {}, notes: {}, subs: {} } }
+    workouts: {},       // { 'w0d0': { sets: {}, notes: {}, subs: {}, dayNotes: '' } }
     workoutDates: {},   // { '2026-04-07': true }
     proteinHits: {},    // { '2026-04-07': [true,true,false,false,false] }
-    mealSelections: {}, // { '0': 1 } = slot 0, option index 1
+    mealSelections: {}, // legacy — ignored but kept for backwards compat
     yoga: {},           // { '2026-04-07': { duration: 60, calories: 350, avgHR: 125, notes: '' } } or true (legacy)
     bodyweight: [],     // [{ date: '2026-04-07', weight: 133.4 }]
-    version: 2
+    peptides: defaultPeptideState(),
+    version: 3
+  };
+}
+
+function defaultPeptideState() {
+  return {
+    catalog: {
+      reta: { name: 'Retatrutide', form: 'injection', defaultVialMg: 12, defaultBacMl: 2, presetDoses: [0.5, 1, 1.5, 2] },
+      mt2:  { name: 'Melanotan 2', form: 'injection', defaultVialMg: 12.5, defaultBacMl: 2.5, presetDoses: [0.25, 0.5] },
+      kpv:  { name: 'KPV',         form: 'injection', defaultVialMg: 10, defaultBacMl: 1, presetDoses: [0.5, 1, 1.5, 2] },
+      bpc:  { name: 'BPC-157',     form: 'oral',      tabletMg: 0.5, presetTabletCounts: [1, 2] }
+    },
+    vials: [],
+    cycles: [],
+    doses: [],
+    welcomeSeen: false,
+    referenceDocPath: '/Users/mkwoodsrnbsn/personal/peptide_dosing_cheatsheet.pdf'
   };
 }
 
@@ -1091,15 +1209,18 @@ function migrateState(s) {
   if (!s.workoutDates) {
     s.workoutDates = {};
   }
-  // Migration: ensure workout objects have notes/subs
+  // Migration: ensure workout objects have notes/subs/dayNotes
   if (s.workouts) {
     Object.keys(s.workouts).forEach(k => {
       if (!s.workouts[k].notes) s.workouts[k].notes = {};
       if (!s.workouts[k].subs) s.workouts[k].subs = {};
+      if (s.workouts[k].dayNotes === undefined) s.workouts[k].dayNotes = '';
     });
   }
+  // Migration: peptide tracking
+  if (!s.peptides) s.peptides = defaultPeptideState();
   // Bump version
-  s.version = 2;
+  s.version = 3;
 }
 
 function save() {
@@ -1141,7 +1262,7 @@ function showView(id, btn) {
   }
 
   document.getElementById('view-' + id).classList.add('active');
-  const navIdx = {home:0, workout:1, nutrition:2, progress:3}[id] || 0;
+  const navIdx = {home:0, workout:1, progress:2, peptides:3}[id] || 0;
   if (btn) btn.classList.add('active');
   else document.querySelectorAll('.nav button')[navIdx].classList.add('active');
 
@@ -1151,8 +1272,8 @@ function showView(id, btn) {
 
   if (id === 'home') renderHome();
   if (id === 'workout' && currentDay !== null) renderWorkout();
-  if (id === 'nutrition') renderNutrition();
   if (id === 'progress') renderProgress();
+  if (id === 'peptides') renderPeptides();
 }
 
 function goHome() {
@@ -1219,6 +1340,8 @@ function renderHome() {
   } else {
     document.getElementById('yoga-label').textContent = 'Log Hot Yoga';
   }
+
+  renderProteinHits();
 }
 
 function setWeek(w) {
@@ -1341,13 +1464,23 @@ function renderWorkout() {
   const week = state.currentWeek;
   const key = `w${week}d${currentDay}`;
 
+  // Preserve which exercise cards are currently open across re-render
+  const prevOpen = new Set(
+    Array.from(document.querySelectorAll('.exercise-card.open')).map(el => el.id)
+  );
+
   document.getElementById('wo-title').textContent = `${day.name} — ${day.theme}`;
   document.getElementById('wo-sub').textContent = `${PROGRAM.weekLabels[week]} · 60 min`;
 
-  if (!state.workouts[key]) state.workouts[key] = { sets: {}, notes: {}, subs: {} };
+  if (!state.workouts[key]) state.workouts[key] = { sets: {}, notes: {}, subs: {}, dayNotes: '' };
   if (!state.workouts[key].notes) state.workouts[key].notes = {};
   if (!state.workouts[key].subs) state.workouts[key].subs = {};
+  if (state.workouts[key].dayNotes === undefined) state.workouts[key].dayNotes = '';
   const wo = state.workouts[key];
+
+  const dayNotesEl = document.getElementById('wo-day-notes');
+  dayNotesEl.value = wo.dayNotes || '';
+  dayNotesEl.onchange = function() { saveDayNote(key, this.value); };
 
   const prevKey = week > 0 ? `w${week-1}d${currentDay}` : null;
   const prevWo = prevKey ? (state.workouts[prevKey] || { sets: {} }) : { sets: {} };
@@ -1398,14 +1531,15 @@ function renderWorkout() {
 
     // Exercise user notes + sub (#3)
     const userNote = wo.notes[ei] || '';
-    const userSub = wo.subs[ei] || '';
-    const subVisible = userSub ? true : false;
+    const subExists = wo.subs && Object.prototype.hasOwnProperty.call(wo.subs, ei);
+    const userSub = subExists ? (wo.subs[ei] || '') : '';
+    const subVisible = subExists;
 
     const userNotesHtml = `<div class="exercise-user-notes">
       <input type="text" placeholder="Notes (e.g. felt strong, shoulder twinge)" value="${escapeHtml(userNote)}"
         onchange="saveExerciseNote('${key}',${ei},this.value)">
       <div class="sub-toggle" onclick="toggleSubInput(this, '${key}', ${ei})">
-        ${subVisible ? '↻ Substitution:' : '↻ Log a substitution...'}
+        ${subVisible ? '↻ Substitution (tap to hide):' : '↻ Log a substitution...'}
       </div>
       ${subVisible ? `<input type="text" placeholder="What did you sub? (e.g. hip thrust machine taken)" value="${escapeHtml(userSub)}"
         onchange="saveExerciseSub('${key}',${ei},this.value)" style="border-color:var(--accent-orange)">` : ''}
@@ -1439,16 +1573,25 @@ function renderWorkout() {
     </div>`;
   }
 
-  const firstIncomplete = day.exercises.findIndex((ex, ei) => {
-    const numSets = ex.sets[week] || 3;
-    for (let si = 0; si < numSets; si++) {
-      const setKey = `${ei}_${si}`;
-      if (!(wo.sets[setKey] && wo.sets[setKey].done)) return true;
+  if (prevOpen.size > 0) {
+    // Restore previously-open cards (don't auto-jump to first-incomplete on re-render)
+    prevOpen.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('open');
+    });
+  } else {
+    // First render of this view — auto-open first incomplete exercise
+    const firstIncomplete = day.exercises.findIndex((ex, ei) => {
+      const numSets = ex.sets[week] || 3;
+      for (let si = 0; si < numSets; si++) {
+        const setKey = `${ei}_${si}`;
+        if (!(wo.sets[setKey] && wo.sets[setKey].done)) return true;
+      }
+      return false;
+    });
+    if (firstIncomplete >= 0) {
+      document.getElementById(`ex-${firstIncomplete}`).classList.add('open');
     }
-    return false;
-  });
-  if (firstIncomplete >= 0) {
-    document.getElementById(`ex-${firstIncomplete}`).classList.add('open');
   }
 }
 
@@ -1491,22 +1634,29 @@ function saveExerciseNote(woKey, exIdx, value) {
 }
 
 function saveExerciseSub(woKey, exIdx, value) {
-  if (!state.workouts[woKey]) state.workouts[woKey] = { sets: {}, notes: {}, subs: {} };
+  if (!state.workouts[woKey]) state.workouts[woKey] = { sets: {}, notes: {}, subs: {}, dayNotes: '' };
   if (!state.workouts[woKey].subs) state.workouts[woKey].subs = {};
   state.workouts[woKey].subs[exIdx] = value;
   save();
 }
 
+function saveDayNote(woKey, value) {
+  if (!state.workouts[woKey]) state.workouts[woKey] = { sets: {}, notes: {}, subs: {}, dayNotes: '' };
+  state.workouts[woKey].dayNotes = value;
+  save();
+}
+
 function toggleSubInput(el, woKey, exIdx) {
-  if (!state.workouts[woKey]) state.workouts[woKey] = { sets: {}, notes: {}, subs: {} };
+  if (!state.workouts[woKey]) state.workouts[woKey] = { sets: {}, notes: {}, subs: {}, dayNotes: '' };
   if (!state.workouts[woKey].subs) state.workouts[woKey].subs = {};
-  const hasSub = state.workouts[woKey].subs[exIdx];
-  if (!hasSub) {
-    // Show the sub input by setting empty string
-    state.workouts[woKey].subs[exIdx] = '';
-    save();
-    renderWorkout();
+  const subs = state.workouts[woKey].subs;
+  if (Object.prototype.hasOwnProperty.call(subs, exIdx)) {
+    if (!subs[exIdx]) delete subs[exIdx];
+  } else {
+    subs[exIdx] = '';
   }
+  save();
+  renderWorkout();
 }
 
 // =====================================================
@@ -1553,56 +1703,25 @@ function startTimer(seconds) {
 }
 
 // =====================================================
-// NUTRITION
+// PROTEIN HITS (lives on Home)
 // =====================================================
-function renderNutrition() {
+function renderProteinHits() {
   const hits = state.proteinHits[today()] || [false,false,false,false,false];
   const hitsEl = document.getElementById('protein-hits');
+  if (!hitsEl) return;
   hitsEl.innerHTML = hits.map((h, i) =>
     `<div class="protein-circle ${h?'filled':''}" onclick="toggleProteinHit(${i})">${h?'✓':i+1}</div>`
   ).join('');
 
   const filled = hits.filter(Boolean).length;
   document.getElementById('protein-count').textContent = `${filled} / 5 hits · ~${filled * 30}g protein`;
-
-  const cards = document.getElementById('meal-cards');
-  cards.innerHTML = MEALS.map((meal, mi) => {
-    const sel = state.mealSelections[mi] || 0;
-    const opt = meal.options[sel % meal.options.length];
-    const badgeHtml = opt.badges.map(b => {
-      if (b === 'safe') return '<span class="meal-badge badge-safe">✓ SAFE</span>';
-      if (b === 'cook') return '<span class="meal-badge badge-cook">⚠ COOK FIRST</span>';
-      if (b === 'avoid') return '<span class="meal-badge badge-avoid">✗ AVOID</span>';
-      if (b === 'flex') return '<span class="meal-badge badge-flex">★ FLEX</span>';
-      return '';
-    }).join('');
-
-    const swapBtn = meal.options.length > 1
-      ? `<button class="swap-btn" onclick="swapMeal(${mi})">↻ Swap suggestion</button>`
-      : '';
-
-    return `<div class="card meal-card">
-      <div class="meal-label">${meal.slot}</div>
-      <div class="meal-main">${opt.name}</div>
-      <div class="meal-detail">${opt.detail}</div>
-      <div class="meal-badges">${badgeHtml}</div>
-      ${swapBtn}
-    </div>`;
-  }).join('');
 }
 
 function toggleProteinHit(i) {
   if (!state.proteinHits[today()]) state.proteinHits[today()] = [false,false,false,false,false];
   state.proteinHits[today()][i] = !state.proteinHits[today()][i];
   save();
-  renderNutrition();
-}
-
-function swapMeal(mi) {
-  if (!state.mealSelections[mi]) state.mealSelections[mi] = 0;
-  state.mealSelections[mi] = (state.mealSelections[mi] + 1) % MEALS[mi].options.length;
-  save();
-  renderNutrition();
+  renderProteinHits();
 }
 
 // =====================================================
@@ -1639,6 +1758,9 @@ function renderProgress() {
       <div class="stat-label">Day Activity Streak</div>
     </div>
   `;
+
+  // Block Calendar
+  renderBlockCalendar();
 
   // Weekly Recap Cards (#7)
   renderWeeklyRecaps();
@@ -1719,6 +1841,70 @@ function logBodyweight() {
   input.value = '';
   save();
   renderProgress();
+}
+
+// =====================================================
+// BLOCK CALENDAR
+// =====================================================
+function sessionStatus(woKey) {
+  const wo = state.workouts[woKey];
+  if (!wo) return 'empty';
+  const sets = Object.values(wo.sets || {});
+  const doneCount = sets.filter(s => s.done).length;
+  const hasContext = (wo.dayNotes && wo.dayNotes.trim()) ||
+    (wo.subs && Object.values(wo.subs).some(v => v)) ||
+    (wo.notes && Object.values(wo.notes).some(v => v));
+  if (doneCount === 0) return hasContext ? 'context' : 'empty';
+  // Determine total planned sets (use current week index if unknown — fall back to 3)
+  const m = woKey.match(/^w(\d+)d(\d+)$/);
+  if (!m) return doneCount > 0 ? 'partial' : 'empty';
+  const w = parseInt(m[1]), d = parseInt(m[2]);
+  const day = PROGRAM.days[d];
+  if (!day) return 'partial';
+  const totalSets = day.exercises.reduce((sum, e) => sum + (e.sets[w] || 3), 0);
+  return doneCount >= totalSets ? 'full' : 'partial';
+}
+
+function renderBlockCalendar() {
+  const container = document.getElementById('block-calendar');
+  if (!container) return;
+  const weeks = PROGRAM.weeks.length; // 4 weeks in current block
+  const days = PROGRAM.days.length;
+
+  let html = `<div class="bc-grid">`;
+  html += `<div class="bc-row"><div class="bc-week-label"></div>`;
+  for (let d = 0; d < days; d++) {
+    html += `<div class="bc-header">D${PROGRAM.days[d].id}</div>`;
+  }
+  html += `</div>`;
+
+  let totalCells = 0;
+  let completedCells = 0;
+
+  for (let w = 0; w < weeks; w++) {
+    html += `<div class="bc-row"><div class="bc-week-label">Wk ${w+1}</div>`;
+    for (let d = 0; d < days; d++) {
+      const woKey = `w${w}d${d}`;
+      const status = sessionStatus(woKey);
+      const isCurrent = (w === state.currentWeek) ? ' bc-current' : '';
+      html += `<div class="bc-cell bc-${status}${isCurrent}" onclick="openDayFromCalendar(${w},${d})"></div>`;
+      totalCells++;
+      if (status === 'full') completedCells++;
+    }
+    html += `</div>`;
+  }
+  html += `</div>`;
+  container.innerHTML = html;
+
+  const pct = totalCells > 0 ? Math.round((completedCells / totalCells) * 100) : 0;
+  document.getElementById('block-completion').textContent = `${completedCells}/${totalCells} sessions · ${pct}%`;
+}
+
+function openDayFromCalendar(w, d) {
+  state.currentWeek = w;
+  currentDay = d;
+  save();
+  showView('workout');
 }
 
 // =====================================================
@@ -1872,6 +2058,19 @@ function renderWeeklyRecaps() {
         const latestBW = weekBW[weekBW.length - 1];
         narrative += `<p>Latest bodyweight: ${latestBW.weight} lbs (${latestBW.date})</p>`;
       }
+    }
+
+    // Day-level context notes for this week
+    const weekDayNotes = [];
+    for (let d = 0; d < PROGRAM.days.length; d++) {
+      const key = `w${w}d${d}`;
+      const wo = state.workouts[key];
+      if (wo && wo.dayNotes && wo.dayNotes.trim()) {
+        weekDayNotes.push(`<strong>${PROGRAM.days[d].name}:</strong> ${escapeHtml(wo.dayNotes.trim())}`);
+      }
+    }
+    if (weekDayNotes.length > 0) {
+      narrative += `<p>Day context: ${weekDayNotes.join(' · ')}</p>`;
     }
 
     // Exercise notes and subs for this week
@@ -2090,6 +2289,713 @@ function closeModal(e) {
   if (!e || e.target === document.getElementById('modal-overlay')) {
     document.getElementById('modal-overlay').classList.remove('show');
   }
+}
+
+// =====================================================
+// PEPTIDES
+// =====================================================
+let pepTab = 'log';
+const SITE_ORDER = ['abdomen-L','abdomen-R','thigh-L','thigh-R','flank-L','flank-R','delt-L','delt-R'];
+const SITE_LABEL = {
+  'abdomen-L': 'Abd L', 'abdomen-R': 'Abd R',
+  'thigh-L': 'Thigh L', 'thigh-R': 'Thigh R',
+  'flank-L': 'Flank L', 'flank-R': 'Flank R',
+  'delt-L': 'Delt L', 'delt-R': 'Delt R'
+};
+
+function pepId() { return 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+function ensurePeptides() {
+  if (!state.peptides) state.peptides = defaultPeptideState();
+  if (!state.peptides.catalog) state.peptides.catalog = defaultPeptideState().catalog;
+  if (!state.peptides.vials) state.peptides.vials = [];
+  if (!state.peptides.cycles) state.peptides.cycles = [];
+  if (!state.peptides.doses) state.peptides.doses = [];
+}
+
+function activeVial(peptideId) {
+  return state.peptides.vials.find(v => v.peptideId === peptideId && v.status === 'active');
+}
+function activeCycle(peptideId) {
+  return state.peptides.cycles.find(c => c.peptideId === peptideId && !c.endDate);
+}
+function dosesForCycle(cycleId) {
+  return state.peptides.doses.filter(d => d.cycleId === cycleId);
+}
+function dosesForVial(vialId) {
+  return state.peptides.doses.filter(d => d.vialId === vialId);
+}
+function daysBetween(a, b) {
+  const da = new Date(a + 'T12:00:00');
+  const db = new Date(b + 'T12:00:00');
+  return Math.floor((db - da) / 86400000);
+}
+function cycleDayNumber(cycle, dateStr) {
+  if (!cycle) return null;
+  return daysBetween(cycle.startDate, dateStr) + 1;
+}
+
+function renderPeptides() {
+  ensurePeptides();
+  if (!state.peptides.welcomeSeen) {
+    openPeptideWelcomeModal();
+    return;
+  }
+  if (pepTab === 'log') renderPepLog();
+  else if (pepTab === 'vials') renderPepVials();
+  else if (pepTab === 'cycles') renderPepCycles();
+}
+
+function setPepTab(tab) {
+  pepTab = tab;
+  ['log','vials','cycles'].forEach(t => {
+    const btn = document.getElementById('pep-tab-' + t);
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
+  renderPeptides();
+}
+
+// ---- LOG TAB ----
+function renderPepLog() {
+  const container = document.getElementById('pep-content');
+  const cycles = state.peptides.cycles.filter(c => !c.endDate);
+  const todayStr = today();
+  let html = '';
+
+  if (cycles.length === 0) {
+    html += `<div class="pep-empty">No active cycles. Start one from the <b>Cycles</b> tab.</div>`;
+  } else {
+    html += `<div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Active cycles</div>`;
+    cycles.forEach(cycle => {
+      const pep = state.peptides.catalog[cycle.peptideId];
+      if (!pep) return;
+      const cd = cycleDayNumber(cycle, todayStr);
+      const todayDoses = state.peptides.doses.filter(d => d.cycleId === cycle.id && d.dateTime.slice(0,10) === todayStr);
+      const loggedToday = todayDoses.length > 0;
+      html += `<div class="card pep-card">
+        <div class="pep-card-head">
+          <div>
+            <div class="pep-card-title">${pep.name}</div>
+            <div class="pep-card-meta">Cycle day ${cd} · ${pep.form}</div>
+          </div>
+          ${loggedToday ? '<span style="font-size:11px;color:var(--accent-green);font-weight:600">✓ today</span>' : ''}
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px">${escapeHtml(cycle.protocol || '')}</div>
+        <button class="pep-action-btn" onclick="openDoseLoggerModal('${cycle.id}')">
+          ${loggedToday ? '+ Log another dose' : '+ Log dose'}
+        </button>
+      </div>`;
+    });
+  }
+
+  // Recent doses
+  const recent = state.peptides.doses.slice().sort((a,b) => b.dateTime.localeCompare(a.dateTime)).slice(0, 10);
+  if (recent.length > 0) {
+    html += `<div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin:18px 0 8px">Recent doses</div>`;
+    recent.forEach(d => {
+      const pep = state.peptides.catalog[d.peptideId];
+      const pepName = pep ? pep.name : d.peptideId;
+      const dt = new Date(d.dateTime);
+      const dateLabel = dt.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }) + ' ' + dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      const doseLabel = d.tabletCount != null
+        ? `${d.tabletCount} tab${d.tabletCount !== 1 ? 's' : ''} (${d.doseMg} mg)`
+        : `${d.doseMg} mg${d.unitsDrawn ? ' · ' + d.unitsDrawn + 'u' : ''}`;
+      const siteLabel = d.site ? ' · ' + SITE_LABEL[d.site] : '';
+      html += `<div class="pep-log-entry">
+        <div class="pep-log-main"><b>${pepName}</b> — ${doseLabel}${siteLabel}</div>
+        <div class="pep-log-meta">${dateLabel}</div>
+      </div>`;
+    });
+  }
+
+  container.innerHTML = html;
+}
+
+// ---- VIALS TAB ----
+function renderPepVials() {
+  const container = document.getElementById('pep-content');
+  let html = `<button class="pep-action-btn" onclick="openAddVialModal()">+ Add vial / bottle</button>`;
+
+  const active = state.peptides.vials.filter(v => v.status === 'active');
+  const archived = state.peptides.vials.filter(v => v.status === 'archived');
+
+  if (active.length === 0) {
+    html += `<div class="pep-empty">No active vials or bottles yet.</div>`;
+  } else {
+    html += `<div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px">Active</div>`;
+    active.forEach(v => { html += renderVialCard(v); });
+  }
+
+  if (archived.length > 0) {
+    html += `<details style="margin-top:14px"><summary style="font-size:12px;color:var(--text2);cursor:pointer;padding:6px 0">Archived (${archived.length})</summary>`;
+    archived.forEach(v => { html += renderVialCard(v); });
+    html += `</details>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function renderVialCard(v) {
+  const pep = state.peptides.catalog[v.peptideId];
+  const pepName = pep ? pep.name : v.peptideId;
+  const isOral = pep && pep.form === 'oral';
+  const used = dosesForVial(v.id);
+  if (isOral) {
+    const tabsUsed = used.reduce((sum, d) => sum + (d.tabletCount || 0), 0);
+    const remaining = (v.tabletCount || 0) - tabsUsed;
+    const openedDays = v.openedDate ? daysBetween(v.openedDate, today()) : null;
+    return `<div class="card pep-card">
+      <div class="pep-card-head">
+        <div>
+          <div class="pep-card-title">${pepName}</div>
+          <div class="pep-card-meta">Oral · ${v.tabletMg || '?'} mg tablets</div>
+        </div>
+      </div>
+      <div class="pep-stat-row"><span>Tablets remaining</span><b>${remaining} / ${v.tabletCount || '?'}</b></div>
+      ${openedDays != null ? `<div class="pep-stat-row"><span>Opened</span><b>${openedDays}d ago</b></div>` : ''}
+      <button class="pep-action-btn secondary" onclick="archiveVial('${v.id}')">Archive</button>
+    </div>`;
+  } else {
+    const mgUsed = used.reduce((sum, d) => sum + (d.doseMg || 0), 0);
+    const mgRemaining = Math.max(0, (v.vialMg || 0) - mgUsed);
+    const daysOld = v.reconDate ? daysBetween(v.reconDate, today()) : null;
+    // Projection dose: most recent logged dose for this vial, or last active cycle's implied dose, or first preset
+    const lastDose = used.length > 0 ? used.sort((a,b) => b.dateTime.localeCompare(a.dateTime))[0].doseMg : null;
+    const defDose = lastDose || (pep && pep.presetDoses ? pep.presetDoses[0] : null);
+    const dosesRemaining = defDose ? Math.floor(mgRemaining / defDose) : null;
+    const unitsPerDose = (defDose && v.concentrationMgMl) ? Math.round(defDose / v.concentrationMgMl * 100) : null;
+    const stabilityWarn = daysOld != null && daysOld > 28;
+    return `<div class="card pep-card">
+      <div class="pep-card-head">
+        <div>
+          <div class="pep-card-title">${pepName}</div>
+          <div class="pep-card-meta">${v.vialMg} mg + ${v.bacMl} mL BAC · ${v.concentrationMgMl} mg/mL</div>
+        </div>
+      </div>
+      <div class="pep-stat-row"><span>Remaining</span><b>${mgRemaining.toFixed(2)} mg</b></div>
+      ${dosesRemaining != null ? `<div class="pep-stat-row"><span>~Doses @ ${defDose} mg</span><b>${dosesRemaining}${unitsPerDose ? ' (' + unitsPerDose + 'u)' : ''}</b></div>` : ''}
+      ${daysOld != null ? `<div class="pep-stat-row"><span>Reconstituted</span><b>${daysOld}d ago${stabilityWarn ? ' ⚠️' : ''}</b></div>` : ''}
+      <button class="pep-action-btn secondary" onclick="archiveVial('${v.id}')">Archive</button>
+    </div>`;
+  }
+}
+
+function archiveVial(id) {
+  const v = state.peptides.vials.find(x => x.id === id);
+  if (v) { v.status = 'archived'; save(); renderPeptides(); }
+}
+
+// ---- CYCLES TAB ----
+function renderPepCycles() {
+  const container = document.getElementById('pep-content');
+  let html = `<button class="pep-action-btn" onclick="openAddCycleModal()">+ Start new cycle</button>`;
+
+  const active = state.peptides.cycles.filter(c => !c.endDate);
+  const past = state.peptides.cycles.filter(c => c.endDate);
+
+  if (active.length === 0) {
+    html += `<div class="pep-empty">No active cycles.</div>`;
+  } else {
+    html += `<div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px">Active</div>`;
+    active.forEach(c => { html += renderCycleCard(c, false); });
+  }
+  if (past.length > 0) {
+    html += `<details style="margin-top:14px"><summary style="font-size:12px;color:var(--text2);cursor:pointer;padding:6px 0">Past (${past.length})</summary>`;
+    past.forEach(c => { html += renderCycleCard(c, true); });
+    html += `</details>`;
+  }
+  container.innerHTML = html;
+}
+
+function renderCycleCard(c, isPast) {
+  const pep = state.peptides.catalog[c.peptideId];
+  const pepName = pep ? pep.name : c.peptideId;
+  const todayStr = today();
+  const cd = cycleDayNumber(c, todayStr);
+  const doseCount = dosesForCycle(c.id).length;
+  const dateRange = c.endDate ? `${c.startDate} → ${c.endDate}` : `Started ${c.startDate}`;
+  return `<div class="card pep-card">
+    <div class="pep-card-head">
+      <div>
+        <div class="pep-card-title">${pepName}</div>
+        <div class="pep-card-meta">${dateRange}</div>
+      </div>
+      ${!isPast ? `<span style="font-size:11px;color:var(--accent-purple);font-weight:600">Day ${cd}</span>` : ''}
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:6px">${escapeHtml(c.protocol || '')}</div>
+    ${c.notes ? `<div style="font-size:12px;color:var(--text2);margin-bottom:6px;font-style:italic">${escapeHtml(c.notes)}</div>` : ''}
+    <div class="pep-stat-row"><span>Doses logged</span><b>${doseCount}</b></div>
+    ${!isPast ? `<button class="pep-action-btn secondary" onclick="endCycle('${c.id}')">End cycle</button>` : ''}
+  </div>`;
+}
+
+function endCycle(id) {
+  const c = state.peptides.cycles.find(x => x.id === id);
+  if (c && confirm('End this cycle?')) {
+    c.endDate = today();
+    save(); renderPeptides();
+  }
+}
+
+// ---- ADD VIAL MODAL ----
+function openAddVialModal() {
+  const modal = document.getElementById('modal-body');
+  const options = Object.keys(state.peptides.catalog).map(id => {
+    const p = state.peptides.catalog[id];
+    return `<option value="${id}">${p.name} (${p.form})</option>`;
+  }).join('') + `<option value="__custom">+ Add new peptide...</option>`;
+  modal.innerHTML = `
+    <h3>Add Vial / Bottle</h3>
+    <div class="modal-field">
+      <label>Peptide</label>
+      <select id="av-peptide" onchange="onAddVialPeptideChange()" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:10px 12px;font-size:15px;width:100%">${options}</select>
+    </div>
+    <div id="av-fields"></div>
+    <button class="modal-save-btn" onclick="saveNewVial()">Save</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
+  onAddVialPeptideChange();
+}
+
+function onAddVialPeptideChange() {
+  const pid = document.getElementById('av-peptide').value;
+  const fields = document.getElementById('av-fields');
+  if (pid === '__custom') {
+    fields.innerHTML = `
+      <div class="modal-field"><label>Peptide name</label><input id="av-custom-name" placeholder="e.g. GHK-Cu"></div>
+      <div class="modal-field"><label>Form</label>
+        <select id="av-custom-form" onchange="onAddVialPeptideChange()" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:10px 12px;font-size:15px;width:100%">
+          <option value="injection">Injection</option>
+          <option value="oral">Oral (tablet)</option>
+        </select>
+      </div>
+      <div id="av-custom-fields"></div>
+    `;
+    const addInjectionFields = () => {
+      document.getElementById('av-custom-fields').innerHTML = injectionFields();
+      wireReconCalc();
+    };
+    const addOralFields = () => {
+      document.getElementById('av-custom-fields').innerHTML = oralFields();
+    };
+    const formSelect = document.getElementById('av-custom-form');
+    formSelect.onchange = () => formSelect.value === 'oral' ? addOralFields() : addInjectionFields();
+    addInjectionFields();
+    return;
+  }
+  const pep = state.peptides.catalog[pid];
+  if (!pep) return;
+  if (pep.form === 'oral') {
+    fields.innerHTML = oralFields(pep);
+  } else {
+    fields.innerHTML = injectionFields(pep);
+    wireReconCalc();
+  }
+}
+
+function injectionFields(pep) {
+  const dv = pep && pep.defaultVialMg || '';
+  const db = pep && pep.defaultBacMl || '';
+  return `
+    <div class="modal-field"><label>Vial mg</label><input id="av-vialmg" inputmode="decimal" value="${dv}" oninput="updateReconCalc()"></div>
+    <div class="modal-field"><label>BAC water (mL)</label><input id="av-bacml" inputmode="decimal" value="${db}" oninput="updateReconCalc()"></div>
+    <div class="modal-field"><label>Reconstitution date</label><input type="date" id="av-date" value="${today()}" style="color-scheme:dark"></div>
+    <div class="modal-field"><label>Notes (optional)</label><input id="av-notes" placeholder="batch, vendor, etc"></div>
+    <div class="pep-calc-output" id="av-calc"></div>
+  `;
+}
+
+function oralFields(pep) {
+  const tm = pep && pep.tabletMg || '';
+  return `
+    <div class="modal-field"><label>Tablet mg</label><input id="av-tabletmg" inputmode="decimal" value="${tm}"></div>
+    <div class="modal-field"><label>Bottle count</label><input id="av-tabletcount" inputmode="numeric" placeholder="e.g. 60"></div>
+    <div class="modal-field"><label>Opened date</label><input type="date" id="av-date" value="${today()}" style="color-scheme:dark"></div>
+    <div class="modal-field"><label>Notes (optional)</label><input id="av-notes" placeholder="brand, batch"></div>
+  `;
+}
+
+function wireReconCalc() { updateReconCalc(); }
+
+function updateReconCalc() {
+  const calc = document.getElementById('av-calc');
+  if (!calc) return;
+  const mg = parseFloat(document.getElementById('av-vialmg').value);
+  const ml = parseFloat(document.getElementById('av-bacml').value);
+  if (!mg || !ml) { calc.innerHTML = 'Enter vial mg and BAC mL to compute.'; return; }
+  const conc = mg / ml;
+  const pid = document.getElementById('av-peptide').value;
+  const pep = pid === '__custom' ? null : state.peptides.catalog[pid];
+  const doses = pep && pep.presetDoses ? pep.presetDoses : [0.5, 1, 1.5, 2];
+  let rows = doses.map(d => `${d} mg → <b>${Math.round(d / conc * 100)} units</b>`).join('<br>');
+  calc.innerHTML = `Concentration: <b>${conc} mg/mL</b><br>${rows}`;
+}
+
+function saveNewVial() {
+  const pidSel = document.getElementById('av-peptide').value;
+  let peptideId = pidSel;
+  let pep;
+  if (pidSel === '__custom') {
+    const name = (document.getElementById('av-custom-name').value || '').trim();
+    const form = document.getElementById('av-custom-form').value;
+    if (!name) return alert('Peptide name required');
+    peptideId = name.toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 16) || pepId();
+    pep = { name, form };
+    if (form === 'oral') {
+      pep.tabletMg = parseFloat(document.getElementById('av-tabletmg').value) || 0;
+      pep.presetTabletCounts = [1, 2];
+    } else {
+      pep.defaultVialMg = parseFloat(document.getElementById('av-vialmg').value) || 0;
+      pep.defaultBacMl = parseFloat(document.getElementById('av-bacml').value) || 0;
+      pep.presetDoses = [0.5, 1, 1.5, 2];
+    }
+    state.peptides.catalog[peptideId] = pep;
+  } else {
+    pep = state.peptides.catalog[pidSel];
+  }
+
+  const v = { id: pepId(), peptideId, status: 'active', notes: (document.getElementById('av-notes').value || '').trim() };
+  if (pep.form === 'oral') {
+    v.tabletMg = parseFloat(document.getElementById('av-tabletmg').value) || 0;
+    v.tabletCount = parseInt(document.getElementById('av-tabletcount').value) || 0;
+    v.openedDate = document.getElementById('av-date').value || today();
+  } else {
+    const vialMg = parseFloat(document.getElementById('av-vialmg').value);
+    const bacMl = parseFloat(document.getElementById('av-bacml').value);
+    if (!vialMg || !bacMl) return alert('Vial mg and BAC mL required');
+    v.vialMg = vialMg;
+    v.bacMl = bacMl;
+    v.concentrationMgMl = Math.round((vialMg / bacMl) * 1000) / 1000;
+    v.reconDate = document.getElementById('av-date').value || today();
+  }
+  state.peptides.vials.push(v);
+  save();
+  closeModal();
+  setPepTab('vials');
+}
+
+// ---- ADD CYCLE MODAL ----
+function openAddCycleModal() {
+  const modal = document.getElementById('modal-body');
+  const options = Object.keys(state.peptides.catalog).map(id => {
+    const p = state.peptides.catalog[id];
+    return `<option value="${id}">${p.name}</option>`;
+  }).join('');
+  modal.innerHTML = `
+    <h3>Start Cycle</h3>
+    <div class="modal-field">
+      <label>Peptide</label>
+      <select id="ac-peptide" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:10px 12px;font-size:15px;width:100%">${options}</select>
+    </div>
+    <div class="modal-field"><label>Start date</label><input type="date" id="ac-start" value="${today()}" style="color-scheme:dark"></div>
+    <div class="modal-field"><label>Protocol</label><input id="ac-protocol" placeholder="e.g. 1.5 mg weekly"></div>
+    <div class="modal-field"><label>Notes</label><textarea id="ac-notes" placeholder="any nuance"></textarea></div>
+    <button class="modal-save-btn" onclick="saveNewCycle()">Start cycle</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function saveNewCycle() {
+  const peptideId = document.getElementById('ac-peptide').value;
+  const startDate = document.getElementById('ac-start').value || today();
+  const protocol = document.getElementById('ac-protocol').value.trim();
+  const notes = document.getElementById('ac-notes').value.trim();
+  state.peptides.cycles.push({ id: pepId(), peptideId, startDate, endDate: null, protocol, notes });
+  save();
+  closeModal();
+  setPepTab('cycles');
+}
+
+// ---- DOSE LOGGER MODAL ----
+let doseLoggerState = null;
+
+function openDoseLoggerModal(cycleId) {
+  const cycle = state.peptides.cycles.find(c => c.id === cycleId);
+  if (!cycle) return;
+  const pep = state.peptides.catalog[cycle.peptideId];
+  if (!pep) return;
+  const vial = activeVial(cycle.peptideId);
+  const isOral = pep.form === 'oral';
+
+  const defaultDose = isOral
+    ? (pep.presetTabletCounts && pep.presetTabletCounts[0]) || 1
+    : (pep.presetDoses && pep.presetDoses[0]) || 1;
+
+  doseLoggerState = {
+    cycleId, peptideId: cycle.peptideId, vialId: vial ? vial.id : null,
+    isOral, dose: defaultDose, site: null,
+    appetite: '', sides: '', energy: '', freeText: ''
+  };
+
+  renderDoseLogger();
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function renderDoseLogger() {
+  const s = doseLoggerState;
+  if (!s) return;
+  const pep = state.peptides.catalog[s.peptideId];
+  const vial = s.vialId ? state.peptides.vials.find(v => v.id === s.vialId) : null;
+  const modal = document.getElementById('modal-body');
+
+  // Recent sites (last 3 injections)
+  const recentSites = state.peptides.doses
+    .filter(d => d.site)
+    .sort((a,b) => b.dateTime.localeCompare(a.dateTime))
+    .slice(0, 3)
+    .map(d => d.site);
+
+  let dosePresetsHtml = '';
+  if (s.isOral) {
+    const presets = pep.presetTabletCounts || [1, 2];
+    dosePresetsHtml = presets.map(n => {
+      const mg = (pep.tabletMg || (vial && vial.tabletMg) || 0) * n;
+      return `<div class="pep-dose-preset ${s.dose === n ? 'selected' : ''}" onclick="setDoseLoggerDose(${n})">
+        ${n} tab${n !== 1 ? 's' : ''}<small>${mg} mg</small>
+      </div>`;
+    }).join('');
+  } else {
+    const presets = pep.presetDoses || [0.5, 1, 1.5, 2];
+    const conc = vial ? vial.concentrationMgMl : null;
+    dosePresetsHtml = presets.map(mg => {
+      const units = conc ? Math.round(mg / conc * 100) : '?';
+      return `<div class="pep-dose-preset ${s.dose === mg ? 'selected' : ''}" onclick="setDoseLoggerDose(${mg})">
+        ${mg} mg<small>${units} units</small>
+      </div>`;
+    }).join('');
+  }
+
+  const siteHtml = s.isOral ? '' : `
+    <div class="modal-field">
+      <label>Injection site ${recentSites.length > 0 ? '(orange = recent)' : ''}</label>
+      <div class="pep-site-grid">
+        ${SITE_ORDER.map(site => {
+          const isRecent = recentSites.includes(site);
+          const sel = s.site === site;
+          return `<div class="pep-site ${isRecent ? 'recent' : ''} ${sel ? 'selected' : ''}" onclick="setDoseLoggerSite('${site}')">${SITE_LABEL[site]}</div>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  const vialWarn = !s.isOral && !vial
+    ? `<div style="background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.3);color:var(--accent-gold);padding:8px 10px;border-radius:8px;font-size:12px;margin-bottom:10px">No active vial — add one from Vials tab to auto-compute units.</div>`
+    : '';
+
+  modal.innerHTML = `
+    <h3>Log ${pep.name} dose</h3>
+    ${vialWarn}
+    <div class="modal-field">
+      <label>Dose</label>
+      <div class="pep-dose-presets">${dosePresetsHtml}</div>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <input id="dl-custom-dose" inputmode="decimal" placeholder="${s.isOral ? 'Custom tabs' : 'Custom mg'}" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:8px 10px;font-size:14px">
+        <button class="pep-action-btn secondary" style="margin-top:0;width:auto;padding:8px 14px" onclick="applyCustomDose()">Set</button>
+      </div>
+    </div>
+    ${siteHtml}
+    <div class="modal-field">
+      <label>Appetite / Sides / Energy (optional)</label>
+      <input id="dl-appetite" placeholder="appetite" value="${escapeHtml(s.appetite)}">
+      <input id="dl-sides" placeholder="sides / nausea" value="${escapeHtml(s.sides)}" style="margin-top:6px">
+      <input id="dl-energy" placeholder="energy / mood" value="${escapeHtml(s.energy)}" style="margin-top:6px">
+    </div>
+    <div class="modal-field">
+      <label>Free-text note</label>
+      <textarea id="dl-freetext" placeholder="anything else">${escapeHtml(s.freeText)}</textarea>
+    </div>
+    <button class="modal-save-btn" onclick="saveDose()">Save dose</button>
+  `;
+}
+
+function setDoseLoggerDose(n) {
+  // Persist field values before re-render
+  captureDoseLoggerFields();
+  doseLoggerState.dose = n;
+  renderDoseLogger();
+}
+function setDoseLoggerSite(site) {
+  captureDoseLoggerFields();
+  doseLoggerState.site = site;
+  renderDoseLogger();
+}
+function applyCustomDose() {
+  const v = parseFloat(document.getElementById('dl-custom-dose').value);
+  if (!v) return;
+  captureDoseLoggerFields();
+  doseLoggerState.dose = v;
+  renderDoseLogger();
+}
+function captureDoseLoggerFields() {
+  const s = doseLoggerState;
+  if (!s) return;
+  const a = document.getElementById('dl-appetite');
+  const sd = document.getElementById('dl-sides');
+  const e = document.getElementById('dl-energy');
+  const f = document.getElementById('dl-freetext');
+  if (a) s.appetite = a.value;
+  if (sd) s.sides = sd.value;
+  if (e) s.energy = e.value;
+  if (f) s.freeText = f.value;
+}
+
+function saveDose() {
+  captureDoseLoggerFields();
+  const s = doseLoggerState;
+  if (!s) return;
+  const pep = state.peptides.catalog[s.peptideId];
+  const vial = s.vialId ? state.peptides.vials.find(v => v.id === s.vialId) : null;
+  const cycle = state.peptides.cycles.find(c => c.id === s.cycleId);
+  const now = new Date();
+  const dateTime = now.toISOString().slice(0, 16);
+  const todayStr = dateTime.slice(0, 10);
+
+  const dose = { id: pepId(), dateTime, peptideId: s.peptideId, vialId: s.vialId, cycleId: s.cycleId };
+  if (s.isOral) {
+    dose.tabletCount = s.dose;
+    dose.doseMg = (pep.tabletMg || (vial && vial.tabletMg) || 0) * s.dose;
+    dose.unitsDrawn = null;
+    dose.site = null;
+  } else {
+    dose.tabletCount = null;
+    dose.doseMg = s.dose;
+    dose.unitsDrawn = vial ? Math.round(s.dose / vial.concentrationMgMl * 100) : null;
+    dose.site = s.site;
+  }
+  dose.cycleDay = cycle ? cycleDayNumber(cycle, todayStr) : null;
+  dose.menstrualCycleDay = (state.checkins[todayStr] && state.checkins[todayStr].cycle) || null;
+  dose.notes = { appetite: s.appetite, sides: s.sides, energy: s.energy, freeText: s.freeText };
+  state.peptides.doses.push(dose);
+  save();
+  doseLoggerState = null;
+  closeModal();
+  renderPeptides();
+}
+
+// ---- WELCOME / BACKFILL MODAL ----
+function openPeptideWelcomeModal() {
+  const modal = document.getElementById('modal-body');
+  modal.innerHTML = `
+    <h3>Welcome — seed current peptides?</h3>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5">
+      Import the state of your current peptide runs as of today (${today()}). You can edit or remove anything after.
+    </div>
+    <div class="modal-field">
+      <label class="pep-seed-label"><input type="checkbox" id="seed-reta" checked><span>Retatrutide — new vial (12mg + 2mL), cycle 1.5 mg weekly</span></label>
+    </div>
+    <div class="modal-field">
+      <label class="pep-seed-label"><input type="checkbox" id="seed-mt2" checked><span>MT2 — loading cycle (started 4/13), prior 3/22 run as archived</span></label>
+    </div>
+    <div class="modal-field">
+      <label class="pep-seed-label"><input type="checkbox" id="seed-kpv" checked><span>KPV — vial (10mg + 1mL), loading cycle from 4/16</span></label>
+      <label class="pep-seed-sublabel"><input type="checkbox" id="seed-kpv-doses"><span>Also backfill daily 0.5 mg doses since 4/16</span></label>
+    </div>
+    <div class="modal-field">
+      <label class="pep-seed-label"><input type="checkbox" id="seed-bpc" checked><span>BPC-157 — oral cycle from 4/16 (no bottle count yet)</span></label>
+      <label class="pep-seed-sublabel"><input type="checkbox" id="seed-bpc-doses"><span>Also backfill daily 1 tab doses since 4/16</span></label>
+    </div>
+    <button class="modal-save-btn" onclick="applyPeptideSeed()">Seed selected</button>
+    <button class="pep-action-btn secondary" onclick="skipPeptideSeed()">Skip — start fresh</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function applyPeptideSeed() {
+  const seedReta = document.getElementById('seed-reta').checked;
+  const seedMt2 = document.getElementById('seed-mt2').checked;
+  const seedKpv = document.getElementById('seed-kpv').checked;
+  const seedKpvDoses = document.getElementById('seed-kpv-doses').checked;
+  const seedBpc = document.getElementById('seed-bpc').checked;
+  const seedBpcDoses = document.getElementById('seed-bpc-doses').checked;
+
+  if (seedReta) {
+    const vialId = pepId();
+    state.peptides.vials.push({
+      id: vialId, peptideId: 'reta', status: 'active',
+      vialMg: 12, bacMl: 2, concentrationMgMl: 6,
+      reconDate: '2026-04-20', notes: 'seeded'
+    });
+    state.peptides.cycles.push({
+      id: pepId(), peptideId: 'reta',
+      startDate: '2026-04-20', endDate: null,
+      protocol: '1.5 mg weekly (self-titrated between PDF wk1-4 and wk5-8)',
+      notes: 'avoid ovulation/luteal'
+    });
+  }
+  if (seedMt2) {
+    state.peptides.cycles.push({
+      id: pepId(), peptideId: 'mt2',
+      startDate: '2026-03-22', endDate: '2026-04-12',
+      protocol: 'Sporadic 0.25 mg, intermittent',
+      notes: 'pre-loading phase'
+    });
+    state.peptides.cycles.push({
+      id: pepId(), peptideId: 'mt2',
+      startDate: '2026-04-13', endDate: null,
+      protocol: 'Loading 250 mcg daily × 7-10 days, then maintenance 250-500 mcg 1-2×/week',
+      notes: 'pausing for ovulation after day 8-9'
+    });
+  }
+  if (seedKpv) {
+    const vialId = pepId();
+    state.peptides.vials.push({
+      id: vialId, peptideId: 'kpv', status: 'active',
+      vialMg: 10, bacMl: 1, concentrationMgMl: 10,
+      reconDate: '2026-04-16', notes: 'seeded'
+    });
+    const cycleId = pepId();
+    state.peptides.cycles.push({
+      id: cycleId, peptideId: 'kpv',
+      startDate: '2026-04-16', endDate: null,
+      protocol: 'Wk 1: 0.5 mg/day (assess tolerance). Wk 2-8: 1-2 mg/day. Cycle 4-8wk on / 2-4wk off',
+      notes: ''
+    });
+    if (seedKpvDoses) {
+      ['2026-04-16','2026-04-17','2026-04-18','2026-04-19'].forEach(d => {
+        state.peptides.doses.push({
+          id: pepId(), dateTime: d + 'T20:00',
+          peptideId: 'kpv', vialId, cycleId,
+          doseMg: 0.5, unitsDrawn: 5,
+          tabletCount: null, site: null,
+          cycleDay: cycleDayNumber({startDate:'2026-04-16'}, d),
+          menstrualCycleDay: null,
+          notes: { appetite:'', sides:'', energy:'', freeText:'backfilled' }
+        });
+      });
+    }
+  }
+  if (seedBpc) {
+    const cycleId = pepId();
+    state.peptides.cycles.push({
+      id: cycleId, peptideId: 'bpc',
+      startDate: '2026-04-16', endDate: null,
+      protocol: '500 mcg 1×/day ramp-up (3-5 days), increase to 2×/day if tolerated. Empty stomach, 30min pre-food or 2hrs post. Cycle 4-8wk on / 2-4wk off',
+      notes: ''
+    });
+    if (seedBpcDoses) {
+      ['2026-04-16','2026-04-17','2026-04-18','2026-04-19'].forEach(d => {
+        state.peptides.doses.push({
+          id: pepId(), dateTime: d + 'T08:00',
+          peptideId: 'bpc', vialId: null, cycleId,
+          doseMg: 0.5, unitsDrawn: null,
+          tabletCount: 1, site: null,
+          cycleDay: cycleDayNumber({startDate:'2026-04-16'}, d),
+          menstrualCycleDay: null,
+          notes: { appetite:'', sides:'', energy:'', freeText:'backfilled' }
+        });
+      });
+    }
+  }
+  state.peptides.welcomeSeen = true;
+  save();
+  closeModal();
+  renderPeptides();
+}
+
+function skipPeptideSeed() {
+  state.peptides.welcomeSeen = true;
+  save();
+  closeModal();
+  renderPeptides();
 }
 
 // =====================================================
