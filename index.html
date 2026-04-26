@@ -603,6 +603,30 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
 }
 .pep-log-entry .pep-log-main { color: var(--text); }
 .pep-log-entry .pep-log-meta { color: var(--text2); font-size: 11px; }
+.pep-log-entry .pep-log-context { color: var(--text2); font-size: 10px; margin-top: 3px; line-height: 1.4; }
+.pep-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; font-size: 11px; color: var(--text2); margin: 6px 0 10px; }
+.pep-summary b { color: var(--text); font-weight: 600; }
+.pep-summary-full { grid-column: 1 / -1; }
+.pep-card { padding: 14px 16px; }
+.pep-card-inactive { opacity: 0.55; }
+.block-select {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--accent-purple);
+  border-radius: 999px;
+  padding: 4px 28px 4px 12px;
+  font: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M2 4l3 3 3-3' fill='none' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+.block-select:hover { background-color: rgba(167,139,250,0.12); }
+.block-select:focus { outline: 2px solid var(--accent-purple); outline-offset: 1px; }
 .modal-field label.pep-seed-label {
   display: flex; align-items: flex-start; gap: 10px;
   font-size: 14px; color: var(--text);
@@ -626,9 +650,18 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
 <!-- ==================== HOME VIEW ==================== -->
 <div id="view-home" class="view active">
   <div class="page-title">✦ Training Reset</div>
-  <div class="page-sub">Block 1 · <span id="week-label">Week 1</span></div>
+  <div class="page-sub" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <select id="block-select" class="block-select" onchange="setBlock(parseInt(this.value))" aria-label="Switch training block">
+      <option value="1">Block 1 · Re-entry</option>
+      <option value="2">Block 2 · Hypertrophy (Lower bias)</option>
+    </select>
+    <span style="color:var(--text2)">·</span>
+    <span id="week-label">Week 1</span>
+  </div>
 
   <div class="week-pills" id="week-pills"></div>
+
+  <div id="peptide-reminder" style="display:none"></div>
 
   <div class="card" id="checkin-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -666,6 +699,10 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
 
   <button class="yoga-btn" id="yoga-btn" onclick="openYogaModal()">
     <span>🧘</span> <span id="yoga-label">Log Hot Yoga</span>
+  </button>
+
+  <button class="yoga-btn" id="walk-btn" onclick="toggleWalkToday()" style="margin-top:8px">
+    <span>🚶</span> <span id="walk-label">Log Zone-2 Walk</span>
   </button>
 
   <details style="margin-top:14px">
@@ -718,7 +755,7 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
 <!-- ==================== PROGRESS VIEW ==================== -->
 <div id="view-progress" class="view">
   <div class="page-title">Progress</div>
-  <div class="page-sub">Block 1 Tracking</div>
+  <div class="page-sub" id="progress-subtitle">Block tracking</div>
 
   <div class="stat-grid" id="stat-grid"></div>
 
@@ -728,6 +765,7 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
       <div id="block-completion" style="font-size:12px;color:var(--accent-purple);font-weight:600"></div>
     </div>
     <div id="block-calendar"></div>
+    <div id="block-peptide-summary"></div>
     <div style="display:flex;gap:12px;margin-top:10px;font-size:10px;color:var(--text2);flex-wrap:wrap">
       <span><span class="bc-legend bc-full"></span> full</span>
       <span><span class="bc-legend bc-partial"></span> partial</span>
@@ -822,9 +860,17 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
 // =====================================================
 // DATA: PROGRAM
 // =====================================================
-const PROGRAM = {
-  weeks: [1,2,3,4],
-  weekLabels: ['Week 1 — Re-entry','Week 2 — Build','Week 3 — Build','Week 4 — Push'],
+// BLOCK 1 — Re-entry mesocycle (executed as 3 weeks; week 4 retired — moved to block 2)
+const BLOCK1_PROGRAM = {
+  weeks: [1,2,3],
+  weekLabels: ['Week 1 — Re-entry','Week 2 — Build','Week 3 — Build'],
+  // Lifts surfaced on Stats page progress bars + weekly recap. Max 4.
+  mainLifts: [
+    { name: 'Squat',      dayIdx: 0, exIdx: 0, max: 230 },
+    { name: 'Bench',      dayIdx: 1, exIdx: 0, max: 120 },
+    { name: 'Hex RDL',    dayIdx: 2, exIdx: 0, max: 225 },
+    { name: 'Hip Thrust', dayIdx: 0, exIdx: 1, max: 200 }
+  ],
   days: [
     {
       id: 1, name: 'Day 1', theme: 'Squat & Posterior Chain', color: 'purple',
@@ -1157,10 +1203,312 @@ const PROGRAM = {
   ]
 };
 
+// BLOCK 2 — Hypertrophy w/ lower-body bias (4-week mesocycle: 3 accumulation + 1 deload)
+// Goal: close segmental gap (legs 99% vs arms 105-107%); drive row weak point.
+// Reta paused; protein 120→140g ramp. See ~/.claude/plans/let-s-go-ahead-and-happy-rocket.md
+const BLOCK2_PROGRAM = {
+  weeks: [1,2,3,4],
+  weekLabels: ['Week 1 — Accumulation','Week 2 — Volume Up','Week 3 — Intensification','Week 4 — Deload'],
+  // Lifts surfaced on Stats page. Solo-friendly machines (no barbell setup alone).
+  mainLifts: [
+    { name: 'Hack Squat', dayIdx: 0, exIdx: 0, max: 300 },
+    { name: 'Bench',      dayIdx: 1, exIdx: 0, max: 110 },
+    { name: 'Hip Thrust', dayIdx: 2, exIdx: 0, max: 225 },
+    { name: 'Row',        dayIdx: 3, exIdx: 0, max: 150 }
+  ],
+  days: [
+    {
+      id: 1, name: 'Day 1', theme: 'Lower — Quad Bias', color: 'purple',
+      exercises: [
+        {
+          name: 'Hack Squat Machine', sets: [3,4,4,2], reps: '6-8',
+          notes: 'Higher quad EMG + lower spinal load than back squat (Coratella 2021). Fixed path = knee-protective. Solo-safe. Smaller increments → cleaner progression. Sub: Pendulum / belt squat / back squat.',
+          badge: 'protect', badgeText: 'KNEE',
+          url: 'https://www.youtube.com/results?search_query=hack+squat+machine+form',
+          rpeTarget: ['7','7-8','8-9','5-6'],
+          weekNotes: [
+            'Find baseline. Sled + 1-2 plates per side. RPE 7.',
+            '+1 working set. Add ~10 lb total. RPE 7-8.',
+            'Top set @ RPE 8-9. Push reps to 8.',
+            'Deload: 2 sets @ ~60% of week 3. RPE 5-6.'
+          ]
+        },
+        {
+          name: 'DB Reverse Lunge', sets: [3,3,4,2], reps: '8-10/leg',
+          notes: 'Step back into lunge — easier on the knee than forward. DB at sides.',
+          badge: 'protect', badgeText: 'KNEE',
+          url: 'https://www.youtube.com/results?search_query=db+reverse+lunge+form',
+          rpeTarget: ['7','7-8','8','5-6'],
+          weekNotes: [
+            'Start light — 15-20 lb DBs. Find rhythm.',
+            'Push to 20-25 lb DBs. Keep reps tight.',
+            '25-30 lb DBs OR add a set.',
+            'Bodyweight or 10 lb DBs. Move smooth.'
+          ]
+        },
+        {
+          name: 'Leg Press', sets: [3,3,3,2], reps: '10-12',
+          notes: 'Feet mid-platform, controlled descent. No knee lockout at top.',
+          url: 'https://www.youtube.com/results?search_query=leg+press+form+women',
+          rpeTarget: ['7','7-8','8','5-6'],
+          weekNotes: [
+            'Find load that hits 12 reps @ RPE 7. Likely sled + 90-110 lb.',
+            'Add 10-20 lb. RPE 7-8 across.',
+            'Top set @ RPE 8. Push reps to 12+.',
+            'Half load, 2 sets, smooth tempo.'
+          ]
+        },
+        {
+          name: 'Standing Calf Raise', sets: [3,3,3,2], reps: '12-15',
+          notes: 'Full stretch at bottom. 1s pause at top.',
+          url: 'https://www.youtube.com/results?search_query=standing+calf+raise+form',
+          rpeTarget: ['7-8','8','8-9','5-6'],
+          weekNotes: [
+            'Establish working weight, RPE 7-8.',
+            '+5-10 lb if reps stay clean.',
+            'Push final set to failure.',
+            'Half volume, smooth.'
+          ]
+        },
+        {
+          name: 'Plank or Hanging Knee Raise', sets: [3,3,3,2], reps: '30-45s / 10-15',
+          notes: 'Pick one. Plank for control days, knee raise for energy days.',
+          rpeTarget: ['6-7','7','7-8','5'],
+          weekNotes: [
+            '30s plank or 10 knee raises.',
+            '40s plank or 12 knee raises.',
+            '45s plank or 15 knee raises.',
+            'Skip if low energy.'
+          ]
+        }
+      ],
+      finisher: 'Zone-2 walk 10-15 min OR sauna 10 min.'
+    },
+    {
+      id: 2, name: 'Day 2', theme: 'Upper — Push', color: 'orange',
+      exercises: [
+        {
+          name: 'Barbell Bench Press', sets: [3,4,4,2], reps: '6-8',
+          notes: 'Carry over: 85 × 6 @ RPE 8 from block 1. Build from there.',
+          url: 'https://www.youtube.com/results?search_query=barbell+bench+press+form+women',
+          rpeTarget: ['7','7-8','8-9','5-6'],
+          weekNotes: [
+            'Top set 75-80 × 8 @ RPE 7. Greasing the groove.',
+            '+1 set. 80-85 × 8 across.',
+            '90 × 6 @ RPE 8-9 PR attempt.',
+            'Deload: 2 sets at ~60% week 3 load.'
+          ]
+        },
+        {
+          name: 'DB Shoulder Press (or Landmine)', sets: [3,3,4,2], reps: '8-10',
+          notes: 'Landmine variation if shoulder feels cranky. Seated DB otherwise.',
+          url: 'https://www.youtube.com/results?search_query=db+shoulder+press+seated+form',
+          rpeTarget: ['7','7-8','8','5-6'],
+          weekNotes: [
+            '15-20 lb DBs. Build strict reps.',
+            '20-25 lb DBs. Hold form.',
+            '25 lb DBs OR add set.',
+            '10-15 lb, smooth.'
+          ]
+        },
+        {
+          name: 'Incline DB Press OR Cable Fly', sets: [3,3,3,2], reps: '10-12',
+          notes: 'Pick one. Fly for chest mind-muscle, incline for load.',
+          url: 'https://www.youtube.com/results?search_query=incline+db+press+form',
+          rpeTarget: ['7','7-8','8','5-6'],
+          weekNotes: [
+            'Find groove. RPE 7.',
+            'Add a step in load.',
+            'Push final set to RPE 8.',
+            'Light, 2 sets.'
+          ]
+        },
+        {
+          name: 'DB Lateral Raise', sets: [3,3,3,2], reps: '12-15',
+          notes: 'Slight forward lean, lead with elbows. Pause at top.',
+          url: 'https://www.youtube.com/results?search_query=lateral+raise+form',
+          rpeTarget: ['7-8','8','8-9','5-6'],
+          weekNotes: [
+            '7.5-10 lb. Strict.',
+            '10-12.5 lb. Same control.',
+            'Push to failure on final set.',
+            '5-7.5 lb, smooth.'
+          ]
+        },
+        {
+          name: 'Tricep Pushdown OR Overhead Extension', sets: [3,3,3,2], reps: '10-12',
+          notes: 'Pick one variation per session.',
+          url: 'https://www.youtube.com/results?search_query=tricep+pushdown+form',
+          rpeTarget: ['7','7-8','8','5'],
+          weekNotes: [
+            'Moderate, RPE 7.',
+            'Add load.',
+            'RPE 8 final set.',
+            'Light pump, 2 sets.'
+          ]
+        }
+      ],
+      finisher: 'Sauna 8-10 min.'
+    },
+    {
+      id: 3, name: 'Day 3', theme: 'Lower — Posterior', color: 'pink',
+      exercises: [
+        {
+          name: 'Hip Thrust Machine', sets: [3,4,4,2], reps: '8-10',
+          notes: 'Highest glute max EMG of common compounds (Contreras 2015, 2017). Machine = solo-safe vs. barbell roll-over. 1s pause at top, full ROM. Carry over from block 1 (~165 lb).',
+          url: 'https://www.youtube.com/results?search_query=hip+thrust+machine+form',
+          rpeTarget: ['7','7-8','8-9','5-6'],
+          weekNotes: [
+            'Carry over. 155-165 lb @ RPE 7.',
+            '+1 set. 165-175 lb across.',
+            '180+ × 8 @ RPE 8 PR attempt.',
+            'Deload: 2 sets at ~60% week 3.'
+          ]
+        },
+        {
+          name: 'Romanian Deadlift', sets: [3,3,4,2], reps: '8-10',
+          notes: 'Use straps if grip fails first. Hinge, not squat. Stop at mid-shin.',
+          url: 'https://www.youtube.com/results?search_query=romanian+deadlift+form+women',
+          rpeTarget: ['7','7-8','8','5-6'],
+          weekNotes: [
+            'Carry over: ~155-165 lb @ RPE 7.',
+            '165-175 lb. Slow eccentric.',
+            '185 × 6-8 @ RPE 8.',
+            'Bar + 65 lb, smooth tempo.'
+          ]
+        },
+        {
+          name: 'Walking Lunge OR Step-Up', sets: [3,3,3,2], reps: '8-10/leg',
+          notes: 'Pick lunge for open space, step-up for crowded gym (~16in box).',
+          badge: 'protect', badgeText: 'KNEE',
+          url: 'https://www.youtube.com/results?search_query=walking+lunge+form',
+          rpeTarget: ['7','7-8','8','5-6'],
+          weekNotes: [
+            'Bodyweight or 10 lb DBs.',
+            '15-20 lb DBs.',
+            '20-25 lb DBs.',
+            'Bodyweight, slow tempo.'
+          ]
+        },
+        {
+          name: '45° Back Extension', sets: [3,3,3,2], reps: '10-12',
+          notes: 'Knee-safe ham/glute volume — replaces leg curls (avoid loaded knee flexion). Pause at top, squeeze glutes/hams. Drive through hip extension, not low back.',
+          url: 'https://www.youtube.com/results?search_query=45+degree+back+extension+hamstring',
+          rpeTarget: ['7','7-8','8','5'],
+          weekNotes: [
+            'Bodyweight or 5-10 lb plate held. RPE 7.',
+            'Add weight if form holds.',
+            'RPE 8 final set.',
+            'Bodyweight, full ROM.'
+          ]
+        },
+        {
+          name: 'Cable Crunch OR Hanging Knee Raise', sets: [3,3,3,2], reps: '10-15',
+          notes: 'Cable for spinal flexion, hanging for hip flexion + grip.',
+          rpeTarget: ['7','7-8','8','5'],
+          weekNotes: [
+            'Find load.',
+            'Add weight.',
+            'Failure on final set.',
+            'Light, 2 sets.'
+          ]
+        }
+      ],
+      finisher: 'Whirlpool 10-15 min OR zone-2 walk 15 min.'
+    },
+    {
+      id: 4, name: 'Day 4', theme: 'Upper — Pull (Light)', color: 'blue',
+      exercises: [
+        {
+          name: 'Chest-Supported Row', sets: [3,4,4,2], reps: '8-10',
+          notes: 'Replaces stalled DB row — smaller load increments. Pull to lower ribs.',
+          url: 'https://www.youtube.com/results?search_query=chest+supported+row+form',
+          rpeTarget: ['7','7-8','8-9','5-6'],
+          weekNotes: [
+            'Find baseline. RPE 7. T-bar or machine.',
+            '+1 set. Push reps.',
+            'Add load OR push to RPE 8-9.',
+            'Half volume, RPE 5-6.'
+          ]
+        },
+        {
+          name: 'Lat Pulldown', sets: [3,3,3,2], reps: '10-12',
+          notes: 'Wide grip, pull to upper chest. Slight back lean OK, no swing.',
+          url: 'https://www.youtube.com/results?search_query=lat+pulldown+form',
+          rpeTarget: ['7','7-8','8','5-6'],
+          weekNotes: [
+            'Moderate load. RPE 7.',
+            '+1 plate.',
+            'Push final set to RPE 8.',
+            'Half load, 2 sets.'
+          ]
+        },
+        {
+          name: 'Face Pull', sets: [3,3,3,2], reps: '12-15',
+          notes: 'High elbows, pull to forehead. Rear delt + posture.',
+          url: 'https://www.youtube.com/results?search_query=face+pull+form',
+          rpeTarget: ['7','7-8','8','5'],
+          weekNotes: [
+            'Light cable, RPE 7. Strict.',
+            'Add weight if form holds.',
+            'RPE 8 final set.',
+            'Light, full ROM.'
+          ]
+        },
+        {
+          name: 'DB Hammer Curl', sets: [3,3,3,2], reps: '10-12',
+          notes: 'Neutral grip, biceps + brachialis.',
+          url: 'https://www.youtube.com/results?search_query=hammer+curl+form',
+          rpeTarget: ['7','7-8','8','5'],
+          weekNotes: [
+            '15-20 lb DBs.',
+            '20-25 lb DBs.',
+            '25 lb DBs OR slow eccentric.',
+            '10-15 lb, smooth.'
+          ]
+        },
+        {
+          name: 'Rear Delt Fly (Machine or Cable)', sets: [3,3,3,2], reps: '12-15',
+          notes: 'Machine if available, cable otherwise. Squeeze shoulder blades.',
+          rpeTarget: ['7-8','8','8-9','5-6'],
+          weekNotes: [
+            'Light, strict.',
+            'Add load.',
+            'Push to failure final set.',
+            'Half volume.'
+          ]
+        }
+      ],
+      finisher: 'Sauna 8-10 min OR yoga prep stretch.'
+    }
+  ]
+};
+
+const BLOCKS = { 1: BLOCK1_PROGRAM, 2: BLOCK2_PROGRAM };
+
 // =====================================================
 // STATE
 // =====================================================
 let state = loadState();
+let PROGRAM = BLOCKS[state.currentBlock] || BLOCK1_PROGRAM;
+
+// Workout state keys are namespaced by block once we leave block 1 to avoid
+// collision with historical w0d0-style entries already in state.workouts.
+function workoutKey(week, day) {
+  return state.currentBlock === 1
+    ? `w${week}d${day}`
+    : `b${state.currentBlock}w${week}d${day}`;
+}
+
+function setBlock(n) {
+  if (!BLOCKS[n]) return;
+  state.currentBlock = n;
+  state.currentWeek = 0;
+  PROGRAM = BLOCKS[n];
+  save();
+  renderHome();
+  renderProgress();
+}
 
 function defaultState() {
   return {
@@ -1171,9 +1519,11 @@ function defaultState() {
     proteinHits: {},    // { '2026-04-07': [true,true,false,false,false] }
     mealSelections: {}, // legacy — ignored but kept for backwards compat
     yoga: {},           // { '2026-04-07': { duration: 60, calories: 350, avgHR: 125, notes: '' } } or true (legacy)
+    walks: {},          // { '2026-04-25': true } — zone-2 walk completed (compliance streak input)
     bodyweight: [],     // [{ date: '2026-04-07', weight: 133.4 }]
     peptides: defaultPeptideState(),
-    version: 3
+    currentBlock: 1,    // active mesocycle (1 = re-entry, 2 = hypertrophy lower-bias)
+    version: 4
   };
 }
 
@@ -1205,10 +1555,12 @@ function loadState() {
 }
 
 function migrateState(s) {
-  // Migration: add workoutDates if missing
-  if (!s.workoutDates) {
-    s.workoutDates = {};
-  }
+  // Defensive backfill — any older save missing top-level fields gets defaults so
+  // renderHome() doesn't blow up on undefined['2026-XX-XX'] lookups.
+  const def = defaultState();
+  ['checkins','workouts','workoutDates','proteinHits','yoga','walks','bodyweight'].forEach(k => {
+    if (!s[k]) s[k] = def[k];
+  });
   // Migration: ensure workout objects have notes/subs/dayNotes
   if (s.workouts) {
     Object.keys(s.workouts).forEach(k => {
@@ -1219,8 +1571,17 @@ function migrateState(s) {
   }
   // Migration: peptide tracking
   if (!s.peptides) s.peptides = defaultPeptideState();
+  // Migration: walks tracking + current block selector (v4)
+  if (!s.walks) s.walks = {};
+  if (!s.currentBlock) {
+    // Existing users with block-1 workout history auto-advance to block 2
+    // (they finished their re-entry block). Brand-new users start at 1.
+    const hasBlock1History = s.workouts && Object.keys(s.workouts).some(k => /^w\d+d\d+$/.test(k) && Object.values(s.workouts[k].sets || {}).some(set => set.done));
+    s.currentBlock = hasBlock1History ? 2 : 1;
+    if (s.currentBlock === 2) s.currentWeek = 0;
+  }
   // Bump version
-  s.version = 3;
+  s.version = 4;
 }
 
 function save() {
@@ -1238,6 +1599,23 @@ function dateStr(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
+// Local ISO datetime with explicit offset, e.g. "2026-04-25T14:32-06:00".
+// Use for any persisted timestamp so the value remains unambiguous after travel/DST.
+function localISOWithOffset(d) {
+  const pad = n => String(n).padStart(2, '0');
+  const off = -d.getTimezoneOffset();
+  const sign = off >= 0 ? '+' : '-';
+  const abs = Math.abs(off);
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}${sign}${pad(Math.floor(abs/60))}:${pad(abs%60)}`;
+}
+
+// Sunday 00:00 local of the week containing d. Used for weekly compliance streak.
+function weekStart(d) {
+  const w = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  w.setDate(w.getDate() - w.getDay());
+  return w;
+}
+
 // =====================================================
 // VIEWS
 // =====================================================
@@ -1252,7 +1630,7 @@ function showView(id, btn) {
     const week = state.currentWeek;
     let best = 0;
     for (let i = 0; i < PROGRAM.days.length; i++) {
-      const key = `w${week}d${i}`;
+      const key = workoutKey(week, i);
       const wo = state.workouts[key] || { sets: {} };
       const totalSets = PROGRAM.days[i].exercises.reduce((sum, e) => sum + (e.sets[week] || 3), 0);
       const doneSets = Object.values(wo.sets).filter(s => s.done).length;
@@ -1285,6 +1663,9 @@ function goHome() {
 // HOME
 // =====================================================
 function renderHome() {
+  const blockSel = document.getElementById('block-select');
+  if (blockSel) blockSel.value = String(state.currentBlock);
+
   const pills = document.getElementById('week-pills');
   pills.innerHTML = PROGRAM.weeks.map((w, i) =>
     `<button class="week-pill ${i === state.currentWeek ? 'active' : ''}" onclick="setWeek(${i})">Wk ${w}</button>`
@@ -1303,7 +1684,7 @@ function renderHome() {
 
   const cards = document.getElementById('day-cards');
   cards.innerHTML = PROGRAM.days.map((d, i) => {
-    const key = `w${state.currentWeek}d${i}`;
+    const key = workoutKey(state.currentWeek, i);
     const wo = state.workouts[key] || { sets: {} };
     const totalSets = d.exercises.reduce((sum, e) => sum + (e.sets[state.currentWeek] || 3), 0);
     const doneSets = Object.values(wo.sets).filter(s => s.done).length;
@@ -1341,7 +1722,80 @@ function renderHome() {
     document.getElementById('yoga-label').textContent = 'Log Hot Yoga';
   }
 
+  // Walk display
+  const walkBtn = document.getElementById('walk-btn');
+  if (walkBtn) {
+    const hasWalk = !!state.walks[today()];
+    walkBtn.classList.toggle('logged', hasWalk);
+    document.getElementById('walk-label').textContent = hasWalk ? 'Zone-2 Walk Logged ✓' : 'Log Zone-2 Walk';
+  }
+
   renderProteinHits();
+  renderPeptideReminder();
+}
+
+function toggleWalkToday() {
+  const k = today();
+  if (state.walks[k]) delete state.walks[k];
+  else state.walks[k] = true;
+  save();
+  renderHome();
+}
+
+// Estimate cadence (days between doses) from past doses for a cycle.
+// Returns null if too little history; otherwise the median gap in days.
+function estimateCycleCadence(cycleId) {
+  const doses = state.peptides.doses
+    .filter(d => d.cycleId === cycleId)
+    .sort((a, b) => a.dateTime.localeCompare(b.dateTime));
+  if (doses.length < 2) return null;
+  const gaps = [];
+  for (let i = 1; i < doses.length; i++) {
+    gaps.push(daysBetween(doses[i - 1].dateTime.slice(0, 10), doses[i].dateTime.slice(0, 10)));
+  }
+  gaps.sort((a, b) => a - b);
+  const m = gaps[Math.floor(gaps.length / 2)] || 1;
+  return Math.max(1, m);
+}
+
+// Cycles where today's dose is "due" — last dose >= cadence days ago, no dose today.
+function pendingPeptidesToday() {
+  const todayStr = today();
+  return state.peptides.cycles
+    .filter(c => !c.endDate)
+    .map(c => {
+      const pep = state.peptides.catalog[c.peptideId];
+      if (!pep) return null;
+      const cadence = estimateCycleCadence(c.id);
+      if (cadence == null) return null; // not enough history yet to predict
+      const cycleDoses = state.peptides.doses
+        .filter(d => d.cycleId === c.id)
+        .sort((a, b) => b.dateTime.localeCompare(a.dateTime));
+      if (cycleDoses.length === 0) return null;
+      const lastDate = cycleDoses[0].dateTime.slice(0, 10);
+      const ago = daysBetween(lastDate, todayStr);
+      const loggedToday = ago === 0;
+      if (loggedToday) return null;
+      // Due if we're at or past the typical cadence.
+      if (ago >= cadence) return { peptideName: pep.name, ago, cadence, cycleId: c.id };
+      return null;
+    })
+    .filter(Boolean);
+}
+
+function renderPeptideReminder() {
+  const el = document.getElementById('peptide-reminder');
+  if (!el) return;
+  ensurePeptides();
+  if (!state.peptides || !state.peptides.welcomeSeen) { el.style.display = 'none'; return; }
+  const pending = pendingPeptidesToday();
+  if (pending.length === 0) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  const names = pending.map(p => `<b>${p.peptideName}</b>`).join(' · ');
+  el.style.display = 'block';
+  el.innerHTML = `<div class="card" style="padding:10px 14px;margin-bottom:10px;border-left:3px solid var(--accent-purple);cursor:pointer" onclick="showView('peptides', null)">
+    <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">Peptide check</div>
+    <div style="font-size:13px;color:var(--text)">Likely due today: ${names}</div>
+  </div>`;
 }
 
 function setWeek(w) {
@@ -1462,7 +1916,7 @@ function renderWorkout() {
   if (currentDay === null) return;
   const day = PROGRAM.days[currentDay];
   const week = state.currentWeek;
-  const key = `w${week}d${currentDay}`;
+  const key = workoutKey(week, currentDay);
 
   // Preserve which exercise cards are currently open across re-render
   const prevOpen = new Set(
@@ -1482,7 +1936,7 @@ function renderWorkout() {
   dayNotesEl.value = wo.dayNotes || '';
   dayNotesEl.onchange = function() { saveDayNote(key, this.value); };
 
-  const prevKey = week > 0 ? `w${week-1}d${currentDay}` : null;
+  const prevKey = week > 0 ? workoutKey(week - 1, currentDay) : null;
   const prevWo = prevKey ? (state.workouts[prevKey] || { sets: {} }) : { sets: {} };
 
   const list = document.getElementById('exercise-list');
@@ -1728,6 +2182,9 @@ function toggleProteinHit(i) {
 // PROGRESS / STATS
 // =====================================================
 function renderProgress() {
+  const sub = document.getElementById('progress-subtitle');
+  if (sub) sub.textContent = `Block ${state.currentBlock} tracking`;
+
   // Stat cards
   const totalWorkouts = Object.keys(state.workouts).filter(k => {
     const wo = state.workouts[k];
@@ -1755,7 +2212,7 @@ function renderProgress() {
     </div>
     <div class="stat-card">
       <div class="stat-value">${streak}</div>
-      <div class="stat-label">Day Activity Streak</div>
+      <div class="stat-label">Compliant Weeks</div>
     </div>
   `;
 
@@ -1765,18 +2222,16 @@ function renderProgress() {
   // Weekly Recap Cards (#7)
   renderWeeklyRecaps();
 
-  // Lift bars
-  const lifts = [
-    { name: 'Squat', key: 'squat', dayIdx: 0, exIdx: 0, max: 230 },
-    { name: 'Bench', key: 'bench', dayIdx: 1, exIdx: 0, max: 120 },
-    { name: 'Hex RDL', key: 'rdl', dayIdx: 2, exIdx: 0, max: 225 },
-    { name: 'Hip Thrust', key: 'hipthrust', dayIdx: 0, exIdx: 1, max: 200 },
-  ];
+  // Lift bars — block-aware via PROGRAM.mainLifts
+  const lifts = (PROGRAM.mainLifts || []).map((l, i) => ({
+    ...l,
+    key: ['squat','bench','rdl','hipthrust'][i] || 'squat'
+  }));
 
   document.getElementById('lift-bars').innerHTML = lifts.map(lift => {
     let best = 0;
-    for (let w = 0; w < 4; w++) {
-      const woKey = `w${w}d${lift.dayIdx}`;
+    for (let w = 0; w < PROGRAM.weeks.length; w++) {
+      const woKey = workoutKey(w, lift.dayIdx);
       const wo = state.workouts[woKey];
       if (!wo) continue;
       for (let s = 0; s < 10; s++) {
@@ -1806,20 +2261,55 @@ function renderProgress() {
   renderWellnessHistory();
 }
 
-// FIX #2: Streak calculation using workoutDates
+// Weekly compliance streak.
+// A week (Sun 00:00 → Sat 23:59 local) is "compliant" when all four checks pass:
+//   1) workoutDates count >= LIFTS_PER_WEEK (currently 4)
+//   2) protein-day count >= PROTEIN_DAYS_PER_WEEK (>=4 hits/day on >=3 days)
+//   3) yoga sessions >= 1
+//   4) zone-2 walks >= 1
+// Streak = consecutive compliant weeks counting back from the current week.
+// The CURRENT (in-progress) week never breaks the streak — it only extends it
+// once compliant. This avoids punishing mid-week views.
+const COMPLIANCE = {
+  liftsPerWeek: 4,
+  proteinHitsPerDay: 4,        // out of 5 checkboxes
+  proteinDaysPerWeek: 3,
+  yogaPerWeek: 1,
+  walksPerWeek: 1
+};
+
+function weekCompliance(weekStartDate) {
+  const start = weekStart(weekStartDate);
+  let lifts = 0, yogas = 0, walks = 0, proteinDays = 0;
+  for (let i = 0; i < 7; i++) {
+    const day = new Date(start);
+    day.setDate(start.getDate() + i);
+    const k = dateStr(day);
+    if (state.workoutDates[k]) lifts++;
+    const y = state.yoga[k];
+    if (y === true || (typeof y === 'object' && y && y.duration)) yogas++;
+    if (state.walks && state.walks[k]) walks++;
+    const ph = state.proteinHits[k];
+    if (ph && ph.filter(Boolean).length >= COMPLIANCE.proteinHitsPerDay) proteinDays++;
+  }
+  const compliant =
+    lifts >= COMPLIANCE.liftsPerWeek &&
+    proteinDays >= COMPLIANCE.proteinDaysPerWeek &&
+    yogas >= COMPLIANCE.yogaPerWeek &&
+    walks >= COMPLIANCE.walksPerWeek;
+  return { compliant, lifts, proteinDays, yogas, walks, weekStart: start };
+}
+
 function calcStreak() {
   let streak = 0;
-  const d = new Date();
-  for (let i = 0; i < 60; i++) {
-    const key = dateStr(d);
-    const hasWorkout = !!state.workoutDates[key];
-    const hasYoga = !!state.yoga[key];
-    const hasProtein = state.proteinHits[key] && state.proteinHits[key].filter(Boolean).length >= 3;
-
-    if (hasWorkout || hasYoga || hasProtein) streak++;
-    else if (i > 0) break;
-
-    d.setDate(d.getDate() - 1);
+  const cursor = weekStart(new Date());
+  // Current week: count it only if already compliant; never break the streak on it.
+  if (weekCompliance(cursor).compliant) streak++;
+  // Walk back week-by-week until first non-compliant week.
+  for (let i = 0; i < 52; i++) {
+    cursor.setDate(cursor.getDate() - 7);
+    if (weekCompliance(cursor).compliant) streak++;
+    else break;
   }
   return streak;
 }
@@ -1884,7 +2374,7 @@ function renderBlockCalendar() {
   for (let w = 0; w < weeks; w++) {
     html += `<div class="bc-row"><div class="bc-week-label">Wk ${w+1}</div>`;
     for (let d = 0; d < days; d++) {
-      const woKey = `w${w}d${d}`;
+      const woKey = workoutKey(w, d);
       const status = sessionStatus(woKey);
       const isCurrent = (w === state.currentWeek) ? ' bc-current' : '';
       html += `<div class="bc-cell bc-${status}${isCurrent}" onclick="openDayFromCalendar(${w},${d})"></div>`;
@@ -1898,6 +2388,38 @@ function renderBlockCalendar() {
 
   const pct = totalCells > 0 ? Math.round((completedCells / totalCells) * 100) : 0;
   document.getElementById('block-completion').textContent = `${completedCells}/${totalCells} sessions · ${pct}%`;
+
+  renderBlockPeptideSummary();
+}
+
+// One-line peptide summary under the block calendar — counts doses logged
+// during the active block's date range. Keeps Stats from getting cluttered.
+function renderBlockPeptideSummary() {
+  const el = document.getElementById('block-peptide-summary');
+  if (!el) return;
+  ensurePeptides();
+  const blockStart = getBlockStartDate();
+  if (!blockStart || !state.peptides || state.peptides.doses.length === 0) {
+    el.innerHTML = '';
+    return;
+  }
+  // Block window: blockStart → blockStart + 4 weeks
+  const start = new Date(blockStart + 'T00:00:00');
+  const end = new Date(start);
+  end.setDate(end.getDate() + 28);
+  const counts = {};
+  state.peptides.doses.forEach(d => {
+    const dt = new Date(d.dateTime);
+    if (isNaN(dt.getTime())) return;
+    if (dt < start || dt >= end) return;
+    counts[d.peptideId] = (counts[d.peptideId] || 0) + 1;
+  });
+  const parts = Object.keys(counts).map(pid => {
+    const name = (state.peptides.catalog[pid] && state.peptides.catalog[pid].name) || pid;
+    return `${counts[pid]}× ${name}`;
+  });
+  if (parts.length === 0) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div style="font-size:11px;color:var(--text2);margin-top:6px;cursor:pointer" onclick="showView('peptides', null)">Peptides this block: ${parts.join(' · ')} →</div>`;
 }
 
 function openDayFromCalendar(w, d) {
@@ -1939,14 +2461,14 @@ function dateToWeek(dateString, blockStart) {
 
 function renderWeeklyRecaps() {
   const container = document.getElementById('weekly-recaps');
-  let html = '';
+  const recapCards = []; // collected then most-recent-week is auto-expanded
   const blockStart = getBlockStartDate();
 
-  for (let w = 0; w < 4; w++) {
+  for (let w = 0; w < PROGRAM.weeks.length; w++) {
     // Check if this week has any data
     let hasData = false;
     for (let d = 0; d < PROGRAM.days.length; d++) {
-      const key = `w${w}d${d}`;
+      const key = workoutKey(w, d);
       if (state.workouts[key] && Object.values(state.workouts[key].sets).some(s => s.done)) {
         hasData = true;
         break;
@@ -1964,7 +2486,7 @@ function renderWeeklyRecaps() {
     const daysSkipped = [];
 
     for (let d = 0; d < PROGRAM.days.length; d++) {
-      const key = `w${w}d${d}`;
+      const key = workoutKey(w, d);
       const wo = state.workouts[key];
       if (wo && Object.values(wo.sets).some(s => s.done)) {
         sessionsCompleted++;
@@ -1979,16 +2501,11 @@ function renderWeeklyRecaps() {
     if (daysSkipped.length > 0 && sessionsCompleted > 0) narrative += ` <span class="recap-warn">Skipped: ${daysSkipped.join(', ')}.</span>`;
     narrative += '</p>';
 
-    // Top lifts
-    const mainLifts = [
-      { name: 'Squat', dayIdx: 0, exIdx: 0 },
-      { name: 'Bench', dayIdx: 1, exIdx: 0 },
-      { name: 'Hex RDL', dayIdx: 2, exIdx: 0 },
-      { name: 'Hip Thrust', dayIdx: 0, exIdx: 1 },
-    ];
+    // Top lifts — block-aware
+    const mainLifts = PROGRAM.mainLifts || [];
     const liftResults = [];
     mainLifts.forEach(lift => {
-      const woKey = `w${w}d${lift.dayIdx}`;
+      const woKey = workoutKey(w, lift.dayIdx);
       const wo = state.workouts[woKey];
       if (!wo) return;
       let best = 0;
@@ -2063,7 +2580,7 @@ function renderWeeklyRecaps() {
     // Day-level context notes for this week
     const weekDayNotes = [];
     for (let d = 0; d < PROGRAM.days.length; d++) {
-      const key = `w${w}d${d}`;
+      const key = workoutKey(w, d);
       const wo = state.workouts[key];
       if (wo && wo.dayNotes && wo.dayNotes.trim()) {
         weekDayNotes.push(`<strong>${PROGRAM.days[d].name}:</strong> ${escapeHtml(wo.dayNotes.trim())}`);
@@ -2076,7 +2593,7 @@ function renderWeeklyRecaps() {
     // Exercise notes and subs for this week
     const weekNotesList = [];
     for (let d = 0; d < PROGRAM.days.length; d++) {
-      const key = `w${w}d${d}`;
+      const key = workoutKey(w, d);
       const wo = state.workouts[key];
       if (!wo) continue;
       if (wo.notes) {
@@ -2100,14 +2617,34 @@ function renderWeeklyRecaps() {
       narrative += `<p>Notes: ${weekNotesList.join(' · ')}</p>`;
     }
 
-    html += `<div class="recap-card">
-      <div class="recap-header">${weekLabel}</div>
-      <div class="recap-daterange">Week ${w + 1} of Block 1</div>
-      <div class="recap-body">${narrative}</div>
-    </div>`;
+    // One-line summary used as the disclosure header for collapsed weeks.
+    const summary = `${sessionsCompleted}/${sessionsPlanned} sessions${liftResults.length ? ' · top: ' + liftResults.slice(0, 2).join(', ') : ''}`;
+    recapCards.push({
+      week: w,
+      label: weekLabel,
+      summary,
+      narrative
+    });
   }
 
-  container.innerHTML = html || '<div class="card" style="text-align:center;color:var(--text2);font-size:13px;padding:14px">No workout data yet. Start logging to see your weekly recap.</div>';
+  if (recapCards.length === 0) {
+    container.innerHTML = '<div class="card" style="text-align:center;color:var(--text2);font-size:13px;padding:14px">No workout data yet. Start logging to see your weekly recap.</div>';
+    return;
+  }
+
+  // Most recent week with data renders expanded; older weeks collapsed behind a one-line summary.
+  const mostRecentIdx = recapCards.length - 1;
+  const html = recapCards.map((r, i) => {
+    const isCurrent = i === mostRecentIdx;
+    const heading = `<div class="recap-header">${r.label}</div>
+      <div class="recap-daterange">Week ${r.week + 1} of Block ${state.currentBlock}</div>`;
+    if (isCurrent) {
+      return `<div class="recap-card">${heading}<div class="recap-body">${r.narrative}</div></div>`;
+    }
+    return `<details class="recap-card" style="padding:0"><summary style="list-style:none;cursor:pointer;padding:14px 16px">${heading}<div style="font-size:12px;color:var(--text2);margin-top:4px">${r.summary}</div></summary><div class="recap-body" style="padding:0 16px 14px">${r.narrative}</div></details>`;
+  }).join('');
+
+  container.innerHTML = html;
 }
 
 // =====================================================
@@ -2356,59 +2893,116 @@ function setPepTab(tab) {
 }
 
 // ---- LOG TAB ----
+// Compact one-card-per-peptide layout. Active peptides up top; anything inactive
+// for >30 days hides behind a single disclosure. Each card is one summary line
+// + log button. Full recent-dose history lives in a collapsed details block.
 function renderPepLog() {
   const container = document.getElementById('pep-content');
-  const cycles = state.peptides.cycles.filter(c => !c.endDate);
   const todayStr = today();
+  const peptideIds = Object.keys(state.peptides.catalog);
+
+  const buckets = { active: [], stale: [] };
+
+  peptideIds.forEach(pid => {
+    const pep = state.peptides.catalog[pid];
+    const activeCycle = state.peptides.cycles.find(c => c.peptideId === pid && !c.endDate);
+    const activeVial = state.peptides.vials.find(v => v.peptideId === pid && v.status === 'active');
+    const allDoses = state.peptides.doses
+      .filter(d => d.peptideId === pid)
+      .sort((a, b) => b.dateTime.localeCompare(a.dateTime));
+    if (!activeCycle && allDoses.length === 0) return;
+
+    const lastDose = allDoses[0];
+    const lastDoseAgo = lastDose ? daysBetween(lastDose.dateTime.slice(0, 10), todayStr) : null;
+    const isStale = !activeCycle && (lastDoseAgo == null || lastDoseAgo > 30);
+    const card = renderPepCard({ pid, pep, activeCycle, activeVial, allDoses, lastDose, lastDoseAgo, todayStr });
+    buckets[isStale ? 'stale' : 'active'].push(card);
+  });
+
   let html = '';
-
-  if (cycles.length === 0) {
-    html += `<div class="pep-empty">No active cycles. Start one from the <b>Cycles</b> tab.</div>`;
+  if (buckets.active.length === 0 && buckets.stale.length === 0) {
+    html = `<div class="pep-empty">No peptides yet. Start a cycle from the <b>Cycles</b> tab.</div>`;
   } else {
-    html += `<div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Active cycles</div>`;
-    cycles.forEach(cycle => {
-      const pep = state.peptides.catalog[cycle.peptideId];
-      if (!pep) return;
-      const cd = cycleDayNumber(cycle, todayStr);
-      const todayDoses = state.peptides.doses.filter(d => d.cycleId === cycle.id && d.dateTime.slice(0,10) === todayStr);
-      const loggedToday = todayDoses.length > 0;
-      html += `<div class="card pep-card">
-        <div class="pep-card-head">
-          <div>
-            <div class="pep-card-title">${pep.name}</div>
-            <div class="pep-card-meta">Cycle day ${cd} · ${pep.form}</div>
-          </div>
-          ${loggedToday ? '<span style="font-size:11px;color:var(--accent-green);font-weight:600">✓ today</span>' : ''}
-        </div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:8px">${escapeHtml(cycle.protocol || '')}</div>
-        <button class="pep-action-btn" onclick="openDoseLoggerModal('${cycle.id}')">
-          ${loggedToday ? '+ Log another dose' : '+ Log dose'}
-        </button>
-      </div>`;
-    });
+    html += buckets.active.join('');
+    if (buckets.stale.length) {
+      html += `<details style="margin-top:14px"><summary style="font-size:12px;color:var(--text2);cursor:pointer;padding:6px 0">Inactive (${buckets.stale.length})</summary>${buckets.stale.join('')}</details>`;
+    }
   }
-
-  // Recent doses
-  const recent = state.peptides.doses.slice().sort((a,b) => b.dateTime.localeCompare(a.dateTime)).slice(0, 10);
-  if (recent.length > 0) {
-    html += `<div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin:18px 0 8px">Recent doses</div>`;
-    recent.forEach(d => {
-      const pep = state.peptides.catalog[d.peptideId];
-      const pepName = pep ? pep.name : d.peptideId;
-      const dt = new Date(d.dateTime);
-      const dateLabel = dt.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }) + ' ' + dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-      const doseLabel = d.tabletCount != null
-        ? `${d.tabletCount} tab${d.tabletCount !== 1 ? 's' : ''} (${d.doseMg} mg)`
-        : `${d.doseMg} mg${d.unitsDrawn ? ' · ' + d.unitsDrawn + 'u' : ''}`;
-      const siteLabel = d.site ? ' · ' + SITE_LABEL[d.site] : '';
-      html += `<div class="pep-log-entry">
-        <div class="pep-log-main"><b>${pepName}</b> — ${doseLabel}${siteLabel}</div>
-        <div class="pep-log-meta">${dateLabel}</div>
-      </div>`;
-    });
-  }
-
   container.innerHTML = html;
+}
+
+function renderPepCard(ctx) {
+  const { pep, activeCycle, activeVial, allDoses, lastDose, lastDoseAgo, todayStr } = ctx;
+  const loggedToday = lastDose && lastDose.dateTime.slice(0, 10) === todayStr;
+  const cd = activeCycle ? cycleDayNumber(activeCycle, todayStr) : null;
+  const cycleDoses = activeCycle ? allDoses.filter(d => d.cycleId === activeCycle.id) : [];
+
+  // Single inline summary line — keeps card height compact.
+  const summaryParts = [];
+  if (lastDose) {
+    const ago = lastDoseAgo === 0 ? 'today' : lastDoseAgo === 1 ? 'yesterday' : `${lastDoseAgo}d ago`;
+    summaryParts.push(`${formatDoseAmount(lastDose)} ${ago}`);
+  }
+  if (activeCycle && cycleDoses.length) summaryParts.push(`${cycleDoses.length}× this cycle`);
+  if (activeVial && activeVial.concentrationMgMl) summaryParts.push(`${activeVial.concentrationMgMl}mg/mL`);
+
+  return `<div class="card pep-card${activeCycle ? '' : ' pep-card-inactive'}" style="margin-bottom:10px">
+    <div class="pep-card-head">
+      <div>
+        <div class="pep-card-title">${pep.name}</div>
+        <div class="pep-card-meta">${activeCycle ? `Cycle day ${cd} · ${pep.form}` : pep.form}</div>
+      </div>
+      ${loggedToday ? '<span style="font-size:11px;color:var(--accent-green);font-weight:600">✓ today</span>' : ''}
+    </div>
+    ${summaryParts.length ? `<div style="font-size:12px;color:var(--text2);margin:4px 0 8px">${summaryParts.join(' · ')}</div>` : ''}
+    ${activeCycle ? `<button class="pep-action-btn" onclick="openDoseLoggerModal('${activeCycle.id}')">${loggedToday ? '+ Log another' : '+ Log dose'}</button>` : ''}
+    ${allDoses.length > 0 ? `
+      <details style="margin-top:8px">
+        <summary style="font-size:11px;color:var(--text2);cursor:pointer;padding:4px 0;text-transform:uppercase;letter-spacing:0.5px">History (${Math.min(allDoses.length, 8)})</summary>
+        <div style="margin-top:4px">${allDoses.slice(0, 8).map(d => renderDoseRow(d)).join('')}</div>
+      </details>` : ''}
+  </div>`;
+}
+
+// Render a single dose row with day context (cycle day, recovery, sleep, workout flag)
+function renderDoseRow(d) {
+  const dateKey = d.dateTime.slice(0, 10);
+  const ci = state.checkins[dateKey] || {};
+  const ctxParts = [];
+  if (d.cycleDay != null) ctxParts.push(`cycle d${d.cycleDay}`);
+  if (d.menstrualCycleDay != null) ctxParts.push(`menstrual d${d.menstrualCycleDay}`);
+  if (typeof ci.recovery === 'number') ctxParts.push(`rec ${Math.round(ci.recovery * 100)}%`);
+  if (typeof ci.sleep === 'number') ctxParts.push(`sleep ${Math.round(ci.sleep * 100)}%`);
+  if (state.workoutDates[dateKey]) ctxParts.push('lift ✓');
+  const yk = state.yoga[dateKey];
+  if (yk === true || (typeof yk === 'object' && yk && yk.duration)) ctxParts.push('yoga ✓');
+
+  const siteLabel = d.site ? ' · ' + (typeof SITE_LABEL !== 'undefined' && SITE_LABEL[d.site] ? SITE_LABEL[d.site] : d.site) : '';
+  return `<div class="pep-log-entry" style="flex-direction:column;align-items:stretch">
+    <div style="display:flex;justify-content:space-between;gap:8px">
+      <div class="pep-log-main">${formatDoseAmount(d)}${siteLabel}</div>
+      <div class="pep-log-meta">${formatDoseDateTime(d.dateTime)}</div>
+    </div>
+    ${ctxParts.length ? `<div class="pep-log-context">${ctxParts.join(' · ')}</div>` : ''}
+  </div>`;
+}
+
+function formatDoseAmount(d) {
+  if (d.tabletCount != null) return `${d.tabletCount} tab${d.tabletCount !== 1 ? 's' : ''} (${d.doseMg} mg)`;
+  return `${d.doseMg} mg${d.unitsDrawn ? ' · ' + d.unitsDrawn + 'u' : ''}`;
+}
+
+function formatDoseDateTime(s) {
+  const dt = new Date(s);
+  if (isNaN(dt.getTime())) return s;
+  return dt.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }) + ' ' +
+         dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function daysBetween(aDateStr, bDateStr) {
+  const a = new Date(aDateStr + 'T00:00:00');
+  const b = new Date(bDateStr + 'T00:00:00');
+  return Math.round((b - a) / 86400000);
 }
 
 // ---- VIALS TAB ----
@@ -2846,8 +3440,8 @@ function saveDose() {
   const vial = s.vialId ? state.peptides.vials.find(v => v.id === s.vialId) : null;
   const cycle = state.peptides.cycles.find(c => c.id === s.cycleId);
   const now = new Date();
-  const dateTime = now.toISOString().slice(0, 16);
-  const todayStr = dateTime.slice(0, 10);
+  const dateTime = localISOWithOffset(now);
+  const todayStr = dateStr(now);
 
   const dose = { id: pepId(), dateTime, peptideId: s.peptideId, vialId: s.vialId, cycleId: s.cycleId };
   if (s.isOral) {
