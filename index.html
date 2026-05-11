@@ -662,6 +662,7 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   <div class="week-pills" id="week-pills"></div>
 
   <div id="peptide-reminder" style="display:none"></div>
+  <div id="bodycomp-reminder" style="display:none"></div>
 
   <div class="card" id="checkin-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -685,14 +686,30 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
         <label>Cycle Day</label>
         <input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Day #" id="ci-cycle">
       </div>
+      <div class="checkin-item">
+        <label>Stress (1-5)</label>
+        <input type="text" inputmode="numeric" pattern="[1-5]*" placeholder="1=low 5=high" id="ci-stress">
+      </div>
       <div class="checkin-warning" id="ci-warning"></div>
     </div>
   </div>
 
   <div class="card" id="protein-card" style="padding:14px 16px">
-    <div style="font-size:13px;font-weight:600;margin-bottom:4px;color:var(--text2)">5 PROTEIN HITS</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <div style="font-size:13px;font-weight:600;color:var(--text2)">PROTEIN</div>
+      <div style="font-size:10px;color:var(--text3)">Target: 150g</div>
+    </div>
     <div class="protein-hits" id="protein-hits" style="margin:10px 0 4px"></div>
-    <div class="protein-count" id="protein-count" style="margin-bottom:0">0 / 5 hits · ~0g protein</div>
+    <div class="protein-count" id="protein-count" style="margin-bottom:8px">0 / 5 hits · ~0g protein</div>
+    <div style="display:flex;align-items:center;gap:8px;padding-top:8px;border-top:1px solid var(--border)">
+      <label style="font-size:11px;color:var(--text2);font-weight:600;white-space:nowrap">From LoseIt (g):</label>
+      <input type="text" inputmode="numeric" pattern="[0-9]*" id="protein-grams"
+        placeholder="end-of-day total"
+        style="flex:1;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px">
+      <div id="protein-grams-bar" style="width:48px;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
+        <div id="protein-grams-fill" style="height:100%;width:0%;background:linear-gradient(90deg,#a855f7,#ec4899);border-radius:3px;transition:width 0.25s"></div>
+      </div>
+    </div>
   </div>
 
   <div id="day-cards"></div>
@@ -701,7 +718,7 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
     <span>🧘</span> <span id="yoga-label">Log Hot Yoga</span>
   </button>
 
-  <button class="yoga-btn" id="walk-btn" onclick="toggleWalkToday()" style="margin-top:8px">
+  <button class="yoga-btn" id="walk-btn" onclick="openWalkModal()" style="margin-top:8px">
     <span>🚶</span> <span id="walk-label">Log Zone-2 Walk</span>
   </button>
 
@@ -757,6 +774,11 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   <div class="page-title">Progress</div>
   <div class="page-sub" id="progress-subtitle">Block tracking</div>
 
+  <div id="readiness-card"></div>
+  <div id="cycle-ribbon"></div>
+  <div id="week-strip-card"></div>
+  <div id="coach-insight"></div>
+
   <div class="stat-grid" id="stat-grid"></div>
 
   <div class="card" id="block-calendar-card">
@@ -774,12 +796,17 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
     </div>
   </div>
 
-  <div id="weekly-recaps"></div>
+  <div id="volume-card"></div>
 
   <div class="card">
-    <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text2)">MAIN LIFTS (Best Set This Block)</div>
-    <div id="lift-bars"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:600;color:var(--text2)">LIFT PROGRESSION</div>
+      <div style="font-size:10px;color:var(--text3)">vs Block 1 best</div>
+    </div>
+    <div id="lift-progression-grid"></div>
   </div>
+
+  <div id="weekly-recaps"></div>
 
   <div class="card">
     <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--text2)">LOG BODYWEIGHT</div>
@@ -788,6 +815,19 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
       <button onclick="logBodyweight()">Save</button>
     </div>
     <div id="bw-history" style="font-size:12px;color:var(--text2);margin-top:10px"></div>
+  </div>
+
+  <div class="card" id="bodycomp-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:600;color:var(--text2)">BODY COMP</div>
+      <div id="bodycomp-cadence" style="font-size:10px;color:var(--text3)"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+      <button class="settings-btn" style="margin-bottom:0;padding:10px 6px;font-size:12px" onclick="openPhotoModal()">📸 Photo</button>
+      <button class="settings-btn" style="margin-bottom:0;padding:10px 6px;font-size:12px" onclick="openMeasurementModal()">📏 Measure</button>
+      <button class="settings-btn" style="margin-bottom:0;padding:10px 6px;font-size:12px" onclick="openInBodyModal()">⚖️ InBody</button>
+    </div>
+    <div id="bodycomp-history" style="font-size:12px;color:var(--text2);margin-top:4px"></div>
   </div>
 
   <div class="card">
@@ -864,6 +904,11 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
 const BLOCK1_PROGRAM = {
   weeks: [1,2,3],
   weekLabels: ['Week 1 — Re-entry','Week 2 — Build','Week 3 — Build'],
+  // Program version metadata. Used by Stats widgets to avoid grading historical
+  // data against exercises/buckets that didn't exist when the user trained.
+  // Exercises added after `programVersionDate` carry an `addedDate` field.
+  programVersion: 1,
+  programVersionDate: '2026-04-07',
   // Lifts surfaced on Stats page progress bars + weekly recap. Max 4.
   mainLifts: [
     { name: 'Squat',      dayIdx: 0, exIdx: 0, max: 230 },
@@ -876,7 +921,7 @@ const BLOCK1_PROGRAM = {
       id: 1, name: 'Day 1', theme: 'Squat & Posterior Chain', color: 'purple',
       exercises: [
         {
-          name: 'Back Squat', sets: [3,4,4,4], reps: '6-8',
+          name: 'Back Squat', bucket: 'lower_compound', sets: [3,4,4,4], reps: '6-8',
           notes: 'Depth to parallel ONLY — left knee. Box squat variation encouraged.',
           badge: 'protect', badgeText: 'KNEE',
           url: 'https://www.youtube.com/results?search_query=barbell+back+squat+form+women',
@@ -889,7 +934,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Hip Thrust Machine', sets: [4,4,4,4], reps: '10',
+          name: 'Hip Thrust Machine', bucket: 'lower_glute', sets: [4,4,4,4], reps: '10',
           notes: 'Full ROM, 1s pause at top. Build from last known ~165 lb.',
           url: 'https://www.youtube.com/results?search_query=hip+thrust+machine+form+glutes',
           rpeTarget: ['7','7-8','8','8-9'],
@@ -901,7 +946,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Cable Kickback', sets: [3,3,3,3], reps: '12/side',
+          name: 'Cable Kickback', bucket: 'glute_med_iso', sets: [3,3,3,3], reps: '12/side',
           notes: 'Ankle strap, standing. Hinge slightly, extend through glute + hamstring. Zero knee load.',
           badge: 'protect', badgeText: 'KNEE',
           url: 'https://www.youtube.com/results?search_query=cable+kickback+glute+hamstring+form',
@@ -914,7 +959,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Single-Leg DB RDL', sets: [3,3,3,3], reps: '8/side',
+          name: 'Single-Leg DB RDL', bucket: 'hamstring_hinge', sets: [3,3,3,3], reps: '8/side',
           notes: 'Unilateral hinge — addresses scoliosis asymmetry. Light DB, slow eccentric. Left side will feel harder.',
           badge: 'protect', badgeText: 'SCOLIOSIS',
           url: 'https://www.youtube.com/results?search_query=single+leg+romanian+deadlift+dumbbell+form',
@@ -927,7 +972,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Suitcase Carry', sets: [3,3,3,3], reps: '40 steps/side',
+          name: 'Suitcase Carry', bucket: 'core', sets: [3,3,3,3], reps: '40 steps/side',
           notes: 'Anti-lateral flexion core. Addresses scoliosis load asymmetry. Left side works harder — that\'s the point.',
           badge: 'protect', badgeText: 'SCOLIOSIS',
           url: 'https://www.youtube.com/results?search_query=suitcase+carry+form+core',
@@ -946,7 +991,7 @@ const BLOCK1_PROGRAM = {
       id: 2, name: 'Day 2', theme: 'Push & Pull', color: 'blue',
       exercises: [
         {
-          name: 'Barbell Bench Press', sets: [3,4,4,4], reps: '6-8',
+          name: 'Barbell Bench Press', bucket: 'upper_push', sets: [3,4,4,4], reps: '6-8',
           notes: 'Moderate grip. Controlled descent, no bounce. Shoulder blades packed.',
           url: 'https://www.youtube.com/results?search_query=barbell+bench+press+form+women',
           rpeTarget: ['6-7','7-8','7-8','8-9'],
@@ -958,7 +1003,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'DB Row', sets: [4,4,4,4], reps: '10/side',
+          name: 'DB Row', bucket: 'upper_pull', sets: [4,4,4,4], reps: '10/side',
           notes: 'Neutral grip safe for shoulder. Better scapular control than barbell rows.',
           badge: 'protect', badgeText: 'SHOULDER',
           url: 'https://www.youtube.com/results?search_query=dumbbell+row+form',
@@ -971,7 +1016,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Incline DB Press', sets: [3,3,3,3], reps: '10',
+          name: 'Incline DB Press', bucket: 'upper_push', sets: [3,3,3,3], reps: '10',
           notes: 'Neutral to moderate grip. Do NOT go wide — protects left shoulder.',
           badge: 'protect', badgeText: 'SHOULDER',
           url: 'https://www.youtube.com/results?search_query=incline+dumbbell+press+form',
@@ -984,7 +1029,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Neutral-Grip Assisted Pull-Up', sets: [3,3,3,3], reps: '6-8',
+          name: 'Neutral-Grip Assisted Pull-Up', bucket: 'upper_pull', sets: [3,3,3,3], reps: '6-8',
           notes: 'NEUTRAL GRIP ONLY (palms facing). Wide pronated grip stresses left anterior labrum.',
           badge: 'rehab', badgeText: 'SHOULDER',
           url: 'https://www.youtube.com/results?search_query=assisted+pull+up+neutral+grip+form',
@@ -997,7 +1042,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Cable Face Pull', sets: [3,3,3,3], reps: '15',
+          name: 'Cable Face Pull', bucket: 'upper_pull', sets: [3,3,3,3], reps: '15',
           notes: 'Posterior delt + external rotators. Left shoulder rehab. NON-NEGOTIABLE — do not skip.',
           badge: 'rehab', badgeText: 'SHOULDER',
           url: 'https://www.youtube.com/results?search_query=cable+face+pull+form+rear+delt',
@@ -1010,7 +1055,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Band External Rotation', sets: [2,2,2,2], reps: '15/side',
+          name: 'Band External Rotation', bucket: 'upper_pull', sets: [2,2,2,2], reps: '15/side',
           notes: 'Infraspinatus + teres minor. Left shoulder rotator cuff rehab. 4 min, massive ROI.',
           badge: 'rehab', badgeText: 'SHOULDER',
           url: 'https://www.youtube.com/results?search_query=band+external+rotation+shoulder+rehab',
@@ -1029,7 +1074,7 @@ const BLOCK1_PROGRAM = {
       id: 3, name: 'Day 3', theme: 'Hinge & Athletic', color: 'green',
       exercises: [
         {
-          name: 'Hex Bar RDL', sets: [4,4,4,4], reps: '8',
+          name: 'Hex Bar RDL', bucket: 'hamstring_hinge', sets: [4,4,4,4], reps: '8',
           notes: 'Hinge pattern focus. Keep load moderate. Grip fatigue note: use straps if needed.',
           url: 'https://www.youtube.com/results?search_query=hex+bar+rdl+form+romanian+deadlift',
           rpeTarget: ['6-7','7-8','7-8','8-9'],
@@ -1041,7 +1086,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Bulgarian Split Squat', sets: [3,3,3,3], reps: '8/side',
+          name: 'Bulgarian Split Squat', bucket: 'lower_compound', sets: [3,3,3,3], reps: '8/side',
           notes: 'Limited ROM — do NOT chase depth. Left side: stop if posterior knee discomfort.',
           badge: 'protect', badgeText: 'KNEE',
           url: 'https://www.youtube.com/results?search_query=bulgarian+split+squat+form',
@@ -1054,7 +1099,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Leg Press', sets: [3,3,3,3], reps: '10',
+          name: 'Leg Press', bucket: 'lower_compound', sets: [3,3,3,3], reps: '10',
           notes: 'Feet shoulder-width. Don\'t let knees cave. Full range OK here (vs squat).',
           url: 'https://www.youtube.com/results?search_query=leg+press+form+foot+placement',
           rpeTarget: ['7','7-8','8','8-9'],
@@ -1066,7 +1111,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Leg Extension', sets: [3,3,3,3], reps: '12-15',
+          name: 'Leg Extension', bucket: 'lower_compound', sets: [3,3,3,3], reps: '12-15',
           notes: 'VMO strengthening. Controlled — no ballistic reps. Direct knee stability investment.',
           badge: 'protect', badgeText: 'KNEE',
           url: 'https://www.youtube.com/results?search_query=leg+extension+machine+form+vmo',
@@ -1079,7 +1124,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Lateral Band Walk', sets: [2,2,2,2], reps: '20 steps/dir',
+          name: 'Lateral Band Walk', bucket: 'glute_med_iso', sets: [2,2,2,2], reps: '20 steps/dir',
           notes: 'Glute medius activation. Primary lateral knee stabilizer. Protects left medial compartment.',
           badge: 'protect', badgeText: 'KNEE',
           url: 'https://www.youtube.com/results?search_query=lateral+band+walk+glute+medius',
@@ -1092,7 +1137,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Conditioning: Rower Intervals', sets: [1,1,1,1], reps: 'see notes',
+          name: 'Conditioning: Rower Intervals', bucket: 'conditioning', sets: [1,1,1,1], reps: 'see notes',
           notes: 'Zero impact. Safe for left knee.',
           badge: 'protect', badgeText: 'KNEE',
           url: '',
@@ -1111,7 +1156,7 @@ const BLOCK1_PROGRAM = {
       id: 4, name: 'Day 4', theme: 'Back, Arms & Core', color: 'gold',
       exercises: [
         {
-          name: 'Lat Pulldown (Neutral Grip)', sets: [4,4,4,4], reps: '10',
+          name: 'Lat Pulldown (Neutral Grip)', bucket: 'upper_pull', sets: [4,4,4,4], reps: '10',
           notes: 'Neutral or close grip — not wide. Protects left anterior shoulder.',
           badge: 'protect', badgeText: 'SHOULDER',
           url: 'https://www.youtube.com/results?search_query=close+grip+lat+pulldown+form',
@@ -1124,7 +1169,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Landmine Row', sets: [3,3,3,3], reps: '10',
+          name: 'Landmine Row', bucket: 'upper_pull', sets: [3,3,3,3], reps: '10',
           notes: 'Shoulder-safe heavy rowing. Alt: cable row if landmine unavailable.',
           url: 'https://www.youtube.com/results?search_query=landmine+row+form+back',
           rpeTarget: ['7','7-8','8','8-9'],
@@ -1136,7 +1181,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'DB Hammer Curl', sets: [3,3,3,3], reps: '12',
+          name: 'DB Hammer Curl', bucket: 'upper_pull', sets: [3,3,3,3], reps: '12',
           notes: 'Neutral grip throughout. Targets brachialis. Easier on left shoulder than standard curl.',
           url: 'https://www.youtube.com/results?search_query=dumbbell+hammer+curl+form',
           rpeTarget: ['6-7','7','7-8','8'],
@@ -1148,7 +1193,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Tricep Pushdown', sets: [3,3,3,3], reps: '12',
+          name: 'Tricep Pushdown', bucket: 'upper_push', sets: [3,3,3,3], reps: '12',
           notes: 'Rope or bar attachment. Full extension, controlled eccentric.',
           url: 'https://www.youtube.com/results?search_query=tricep+pushdown+rope+form',
           rpeTarget: ['6-7','7','7-8','8'],
@@ -1160,7 +1205,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Cable Lateral Raise', sets: [3,3,3,3], reps: '15',
+          name: 'Cable Lateral Raise', bucket: 'upper_push', sets: [3,3,3,3], reps: '15',
           notes: 'Shoulder-safe medial delt work. No overhead load.',
           url: 'https://www.youtube.com/results?search_query=cable+lateral+raise+form',
           rpeTarget: ['6-7','7','7-8','8'],
@@ -1172,7 +1217,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Dead Bug', sets: [3,3,3,3], reps: '8/side',
+          name: 'Dead Bug', bucket: 'core', sets: [3,3,3,3], reps: '8/side',
           notes: 'Deep core + scoliosis stability. TTC-appropriate (low IAP). Contralateral limb extension only.',
           badge: 'protect', badgeText: 'SCOLIOSIS',
           url: 'https://www.youtube.com/results?search_query=dead+bug+exercise+form+core',
@@ -1185,7 +1230,7 @@ const BLOCK1_PROGRAM = {
           ]
         },
         {
-          name: 'Pallof Press', sets: [3,3,3,3], reps: '12/side',
+          name: 'Pallof Press', bucket: 'core', sets: [3,3,3,3], reps: '12/side',
           notes: 'Anti-rotation — directly addresses scoliosis asymmetry. Keep hips square.',
           badge: 'protect', badgeText: 'SCOLIOSIS',
           url: 'https://www.youtube.com/results?search_query=pallof+press+form+anti+rotation',
@@ -1209,6 +1254,12 @@ const BLOCK1_PROGRAM = {
 const BLOCK2_PROGRAM = {
   weeks: [1,2,3,4],
   weekLabels: ['Week 1 — Accumulation','Week 2 — Volume Up','Week 3 — Intensification','Week 4 — Deload'],
+  // Program version metadata. v2 (2026-05-10) added direct glute-med isolation
+  // work (Lateral Band Walk on D1, Cable Hip Abduction on D3). Exercises added
+  // post-launch carry an `addedDate` so Stats widgets don't flag historical
+  // weeks as "missing" the new work.
+  programVersion: 2,
+  programVersionDate: '2026-05-10',
   // Lifts surfaced on Stats page. Solo-friendly machines (no barbell setup alone).
   mainLifts: [
     { name: 'Hack Squat', dayIdx: 0, exIdx: 0, max: 300 },
@@ -1221,7 +1272,7 @@ const BLOCK2_PROGRAM = {
       id: 1, name: 'Day 1', theme: 'Lower — Quad Bias', color: 'purple',
       exercises: [
         {
-          name: 'Hack Squat Machine', sets: [3,4,4,2], reps: '6-8',
+          name: 'Hack Squat Machine', bucket: 'lower_compound', sets: [3,4,4,2], reps: '6-8',
           notes: 'Higher quad EMG + lower spinal load than back squat (Coratella 2021). Fixed path = knee-protective. Solo-safe. Smaller increments → cleaner progression. Sub: Pendulum / belt squat / back squat.',
           badge: 'protect', badgeText: 'KNEE',
           url: 'https://www.youtube.com/results?search_query=hack+squat+machine+form',
@@ -1234,7 +1285,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: 'DB Reverse Lunge', sets: [3,3,4,2], reps: '8-10/leg',
+          name: 'DB Reverse Lunge', bucket: 'lower_compound', sets: [3,3,4,2], reps: '8-10/leg',
           notes: 'Step back into lunge — easier on the knee than forward. DB at sides.',
           badge: 'protect', badgeText: 'KNEE',
           url: 'https://www.youtube.com/results?search_query=db+reverse+lunge+form',
@@ -1247,7 +1298,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: 'Leg Press', sets: [3,3,3,2], reps: '10-12',
+          name: 'Leg Press', bucket: 'lower_compound', sets: [3,3,3,2], reps: '10-12',
           notes: 'Feet mid-platform, controlled descent. No knee lockout at top.',
           url: 'https://www.youtube.com/results?search_query=leg+press+form+women',
           rpeTarget: ['7','7-8','8','5-6'],
@@ -1259,7 +1310,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: 'Standing Calf Raise', sets: [3,3,3,2], reps: '12-15',
+          name: 'Standing Calf Raise', bucket: 'lower_compound', sets: [3,3,3,2], reps: '12-15',
           notes: 'Full stretch at bottom. 1s pause at top.',
           url: 'https://www.youtube.com/results?search_query=standing+calf+raise+form',
           rpeTarget: ['7-8','8','8-9','5-6'],
@@ -1271,7 +1322,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: 'Plank or Hanging Knee Raise', sets: [3,3,3,2], reps: '30-45s / 10-15',
+          name: 'Plank or Hanging Knee Raise', bucket: 'core', sets: [3,3,3,2], reps: '30-45s / 10-15',
           notes: 'Pick one. Plank for control days, knee raise for energy days.',
           rpeTarget: ['6-7','7','7-8','5'],
           weekNotes: [
@@ -1279,6 +1330,20 @@ const BLOCK2_PROGRAM = {
             '40s plank or 12 knee raises.',
             '45s plank or 15 knee raises.',
             'Skip if low energy.'
+          ]
+        },
+        {
+          name: 'Lateral Band Walk', bucket: 'glute_med_iso', addedDate: '2026-05-10',
+          sets: [2,3,3,2], reps: '15 steps/dir',
+          notes: 'Direct glute medius. Band above knees or at ankles (harder). Quarter-squat hold, small smooth steps, no hip drop. Closes the frontal-plane gap from Block 2 v1.',
+          badge: 'protect', badgeText: 'KNEE',
+          url: 'https://www.youtube.com/results?search_query=lateral+band+walk+glute+medius+form',
+          rpeTarget: ['6','7','7-8','5'],
+          weekNotes: [
+            'Light band. Establish quality. RPE 6.',
+            'Same band, +1 set OR step up a band. RPE 7.',
+            'Harder band OR ankle placement. RPE 7-8.',
+            'Light, smooth. RPE 5.'
           ]
         }
       ],
@@ -1288,7 +1353,7 @@ const BLOCK2_PROGRAM = {
       id: 2, name: 'Day 2', theme: 'Upper — Push', color: 'orange',
       exercises: [
         {
-          name: 'Barbell Bench Press', sets: [3,4,4,2], reps: '6-8',
+          name: 'Barbell Bench Press', bucket: 'upper_push', sets: [3,4,4,2], reps: '6-8',
           notes: 'Carry over: 85 × 6 @ RPE 8 from block 1. Build from there.',
           url: 'https://www.youtube.com/results?search_query=barbell+bench+press+form+women',
           rpeTarget: ['7','7-8','8-9','5-6'],
@@ -1300,7 +1365,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: 'DB Shoulder Press (or Landmine)', sets: [3,3,4,2], reps: '8-10',
+          name: 'DB Shoulder Press (or Landmine)', bucket: 'upper_push', sets: [3,3,4,2], reps: '8-10',
           notes: 'Landmine variation if shoulder feels cranky. Seated DB otherwise.',
           url: 'https://www.youtube.com/results?search_query=db+shoulder+press+seated+form',
           rpeTarget: ['7','7-8','8','5-6'],
@@ -1312,7 +1377,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: 'Incline DB Press OR Cable Fly', sets: [3,3,3,2], reps: '10-12',
+          name: 'Incline DB Press OR Cable Fly', bucket: 'upper_push', sets: [3,3,3,2], reps: '10-12',
           notes: 'Pick one. Fly for chest mind-muscle, incline for load.',
           url: 'https://www.youtube.com/results?search_query=incline+db+press+form',
           rpeTarget: ['7','7-8','8','5-6'],
@@ -1324,7 +1389,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: 'DB Lateral Raise', sets: [3,3,3,2], reps: '12-15',
+          name: 'DB Lateral Raise', bucket: 'upper_push', sets: [3,3,3,2], reps: '12-15',
           notes: 'Slight forward lean, lead with elbows. Pause at top.',
           url: 'https://www.youtube.com/results?search_query=lateral+raise+form',
           rpeTarget: ['7-8','8','8-9','5-6'],
@@ -1336,7 +1401,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: 'Tricep Pushdown OR Overhead Extension', sets: [3,3,3,2], reps: '10-12',
+          name: 'Tricep Pushdown OR Overhead Extension', bucket: 'upper_push', sets: [3,3,3,2], reps: '10-12',
           notes: 'Pick one variation per session.',
           url: 'https://www.youtube.com/results?search_query=tricep+pushdown+form',
           rpeTarget: ['7','7-8','8','5'],
@@ -1354,7 +1419,7 @@ const BLOCK2_PROGRAM = {
       id: 3, name: 'Day 3', theme: 'Lower — Posterior', color: 'pink',
       exercises: [
         {
-          name: 'Hip Thrust Machine', sets: [3,4,4,2], reps: '8-10',
+          name: 'Hip Thrust Machine', bucket: 'lower_glute', sets: [3,4,4,2], reps: '8-10',
           notes: 'Highest glute max EMG of common compounds (Contreras 2015, 2017). Machine = solo-safe vs. barbell roll-over. 1s pause at top, full ROM. Carry over from block 1 (~165 lb).',
           url: 'https://www.youtube.com/results?search_query=hip+thrust+machine+form',
           rpeTarget: ['7','7-8','8-9','5-6'],
@@ -1366,7 +1431,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: 'Romanian Deadlift', sets: [3,3,4,2], reps: '8-10',
+          name: 'Romanian Deadlift', bucket: 'hamstring_hinge', sets: [3,3,4,2], reps: '8-10',
           notes: 'Use straps if grip fails first. Hinge, not squat. Stop at mid-shin.',
           url: 'https://www.youtube.com/results?search_query=romanian+deadlift+form+women',
           rpeTarget: ['7','7-8','8','5-6'],
@@ -1378,7 +1443,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: 'Walking Lunge OR Step-Up', sets: [3,3,3,2], reps: '8-10/leg',
+          name: 'Walking Lunge OR Step-Up', bucket: 'lower_compound', sets: [3,3,3,2], reps: '8-10/leg',
           notes: 'Pick lunge for open space, step-up for crowded gym (~16in box).',
           badge: 'protect', badgeText: 'KNEE',
           url: 'https://www.youtube.com/results?search_query=walking+lunge+form',
@@ -1391,7 +1456,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: '45° Back Extension', sets: [3,3,3,2], reps: '10-12',
+          name: '45° Back Extension', bucket: 'hamstring_hinge', sets: [3,3,3,2], reps: '10-12',
           notes: 'Knee-safe ham/glute volume — replaces leg curls (avoid loaded knee flexion). Pause at top, squeeze glutes/hams. Drive through hip extension, not low back.',
           url: 'https://www.youtube.com/results?search_query=45+degree+back+extension+hamstring',
           rpeTarget: ['7','7-8','8','5'],
@@ -1403,7 +1468,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: 'Cable Crunch OR Hanging Knee Raise', sets: [3,3,3,2], reps: '10-15',
+          name: 'Cable Crunch OR Hanging Knee Raise', bucket: 'core', sets: [3,3,3,2], reps: '10-15',
           notes: 'Cable for spinal flexion, hanging for hip flexion + grip.',
           rpeTarget: ['7','7-8','8','5'],
           weekNotes: [
@@ -1411,6 +1476,19 @@ const BLOCK2_PROGRAM = {
             'Add weight.',
             'Failure on final set.',
             'Light, 2 sets.'
+          ]
+        },
+        {
+          name: 'Cable Hip Abduction', bucket: 'glute_med_iso', addedDate: '2026-05-10',
+          sets: [2,3,3,2], reps: '12/side',
+          notes: 'Loaded glute medius. Cable on ankle strap, stand tall, abduct leg without hip hike or trunk lean. Pairs with hip-thrust day to close the lateral-glute gap. Sub: standing banded abduction or machine abductor if cable taken.',
+          url: 'https://www.youtube.com/results?search_query=standing+cable+hip+abduction+glute+medius',
+          rpeTarget: ['7','7-8','8','5-6'],
+          weekNotes: [
+            'Light cable. Find tension. RPE 7.',
+            'Add load. Pause at top.',
+            'Push final set to RPE 8.',
+            'Light, smooth. RPE 5-6.'
           ]
         }
       ],
@@ -1420,7 +1498,7 @@ const BLOCK2_PROGRAM = {
       id: 4, name: 'Day 4', theme: 'Upper — Pull (Light)', color: 'blue',
       exercises: [
         {
-          name: 'Chest-Supported Row', sets: [3,4,4,2], reps: '8-10',
+          name: 'Chest-Supported Row', bucket: 'upper_pull', sets: [3,4,4,2], reps: '8-10',
           notes: 'Replaces stalled DB row — smaller load increments. Pull to lower ribs.',
           url: 'https://www.youtube.com/results?search_query=chest+supported+row+form',
           rpeTarget: ['7','7-8','8-9','5-6'],
@@ -1432,7 +1510,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: 'Lat Pulldown', sets: [3,3,3,2], reps: '10-12',
+          name: 'Lat Pulldown', bucket: 'upper_pull', sets: [3,3,3,2], reps: '10-12',
           notes: 'Wide grip, pull to upper chest. Slight back lean OK, no swing.',
           url: 'https://www.youtube.com/results?search_query=lat+pulldown+form',
           rpeTarget: ['7','7-8','8','5-6'],
@@ -1444,7 +1522,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: 'Face Pull', sets: [3,3,3,2], reps: '12-15',
+          name: 'Face Pull', bucket: 'upper_pull', sets: [3,3,3,2], reps: '12-15',
           notes: 'High elbows, pull to forehead. Rear delt + posture.',
           url: 'https://www.youtube.com/results?search_query=face+pull+form',
           rpeTarget: ['7','7-8','8','5'],
@@ -1456,7 +1534,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: 'DB Hammer Curl', sets: [3,3,3,2], reps: '10-12',
+          name: 'DB Hammer Curl', bucket: 'upper_pull', sets: [3,3,3,2], reps: '10-12',
           notes: 'Neutral grip, biceps + brachialis.',
           url: 'https://www.youtube.com/results?search_query=hammer+curl+form',
           rpeTarget: ['7','7-8','8','5'],
@@ -1468,7 +1546,7 @@ const BLOCK2_PROGRAM = {
           ]
         },
         {
-          name: 'Rear Delt Fly (Machine or Cable)', sets: [3,3,3,2], reps: '12-15',
+          name: 'Rear Delt Fly (Machine or Cable)', bucket: 'upper_pull', sets: [3,3,3,2], reps: '12-15',
           notes: 'Machine if available, cable otherwise. Squeeze shoulder blades.',
           rpeTarget: ['7-8','8','8-9','5-6'],
           weekNotes: [
@@ -1519,11 +1597,34 @@ function defaultState() {
     proteinHits: {},    // { '2026-04-07': [true,true,false,false,false] }
     mealSelections: {}, // legacy — ignored but kept for backwards compat
     yoga: {},           // { '2026-04-07': { duration: 60, calories: 350, avgHR: 125, notes: '' } } or true (legacy)
-    walks: {},          // { '2026-04-25': true } — zone-2 walk completed (compliance streak input)
+    walks: {},          // legacy: { '2026-04-25': true }. v6+: { duration, calories, avgHR, distance, type, incline, notes } OR true
     bodyweight: [],     // [{ date: '2026-04-07', weight: 133.4 }]
+    proteinGrams: {},   // { '2026-05-10': 145 } — daily total from LoseIt, supplements the 5-hit framework
+    bodyComp: {
+      photos: [],       // [{ date, notes }]  (photo files are stored outside the app; entry records the date)
+      measurements: [], // [{ date, waist, hips, thighL, thighR, chest, armL, armR, notes }]  (inches)
+      inbody: []        // [{ date, weight, bf, smm, ecwTbw, source: 'InBody'|'DEXA', notes }]
+    },
+    reminders: {
+      photoDays: 14,    // cadence (days) — surfaces a soft nudge on Home when overdue
+      measurementDays: 14,
+      inbodyDays: 30
+    },
     peptides: defaultPeptideState(),
     currentBlock: 1,    // active mesocycle (1 = re-entry, 2 = hypertrophy lower-bias)
-    version: 4
+    // Effective dates for features added over time. Anything before a date
+    // is NOT graded against that feature (no retroactive "gap" warnings, no
+    // streak penalties, no bar charts that read 0 as a failure when the
+    // metric did not exist yet). New widgets must check the relevant date
+    // before highlighting deficits in historical data.
+    featureEffectiveDates: {
+      volumeTracking: '2026-05-10',
+      walkDetail: '2026-05-10',
+      proteinGrams: '2026-05-10',
+      stressTracking: '2026-05-10',
+      bodyCompTracking: '2026-05-10'
+    },
+    version: 6
   };
 }
 
@@ -1580,8 +1681,28 @@ function migrateState(s) {
     s.currentBlock = hasBlock1History ? 2 : 1;
     if (s.currentBlock === 2) s.currentWeek = 0;
   }
+  // Migration v5: featureEffectiveDates. Existing users get today's date
+  // (or 2026-05-10, whichever is later) so historical data is never graded
+  // against features added in this release.
+  if (!s.featureEffectiveDates) {
+    s.featureEffectiveDates = { volumeTracking: '2026-05-10' };
+  }
+  // Migration v6: walk detail, protein grams, stress, body comp.
+  // All scoped behind effective dates so the past is not graded against
+  // features that did not exist yet.
+  if (!s.proteinGrams) s.proteinGrams = {};
+  if (!s.bodyComp) s.bodyComp = { photos: [], measurements: [], inbody: [] };
+  if (!s.bodyComp.photos) s.bodyComp.photos = [];
+  if (!s.bodyComp.measurements) s.bodyComp.measurements = [];
+  if (!s.bodyComp.inbody) s.bodyComp.inbody = [];
+  if (!s.reminders) s.reminders = { photoDays: 14, measurementDays: 14, inbodyDays: 30 };
+  const fed = s.featureEffectiveDates;
+  if (!fed.walkDetail)        fed.walkDetail        = '2026-05-10';
+  if (!fed.proteinGrams)      fed.proteinGrams      = '2026-05-10';
+  if (!fed.stressTracking)    fed.stressTracking    = '2026-05-10';
+  if (!fed.bodyCompTracking)  fed.bodyCompTracking  = '2026-05-10';
   // Bump version
-  s.version = 4;
+  s.version = 6;
 }
 
 function save() {
@@ -1680,6 +1801,7 @@ function renderHome() {
   document.getElementById('ci-recovery').value = ci.recovery || '';
   document.getElementById('ci-exertion').value = ci.exertion || '';
   document.getElementById('ci-cycle').value = ci.cycle || '';
+  document.getElementById('ci-stress').value = ci.stress || '';
   updateCheckinWarning(ci);
 
   const cards = document.getElementById('day-cards');
@@ -1725,13 +1847,53 @@ function renderHome() {
   // Walk display
   const walkBtn = document.getElementById('walk-btn');
   if (walkBtn) {
-    const hasWalk = !!state.walks[today()];
-    walkBtn.classList.toggle('logged', hasWalk);
-    document.getElementById('walk-label').textContent = hasWalk ? 'Zone-2 Walk Logged ✓' : 'Log Zone-2 Walk';
+    const walkData = state.walks[today()];
+    const hasWalk = walkData === true || (typeof walkData === 'object' && walkData && (walkData.duration || walkData.distance));
+    walkBtn.classList.toggle('logged', !!hasWalk);
+    const lbl = document.getElementById('walk-label');
+    if (hasWalk && typeof walkData === 'object') {
+      const parts = [];
+      if (walkData.duration) parts.push(walkData.duration + ' min');
+      if (walkData.distance) parts.push(walkData.distance + ' mi');
+      if (walkData.avgHR) parts.push(walkData.avgHR + ' bpm');
+      lbl.textContent = parts.length > 0 ? 'Walk: ' + parts.join(' · ') : 'Walk Logged ✓';
+    } else if (hasWalk) {
+      lbl.textContent = 'Zone-2 Walk Logged ✓';
+    } else {
+      lbl.textContent = 'Log Zone-2 Walk';
+    }
   }
 
   renderProteinHits();
   renderPeptideReminder();
+  renderBodyCompReminder();
+}
+
+function renderBodyCompReminder() {
+  ensureBodyComp();
+  const el = document.getElementById('bodycomp-reminder');
+  if (!el) return;
+  // Only flag items that became overdue AFTER the feature shipped — never
+  // retroactively grade the user against a feature that did not exist yet.
+  const effective = (state.featureEffectiveDates && state.featureEffectiveDates.bodyCompTracking) || '2026-05-10';
+  if (today() < effective) { el.style.display = 'none'; return; }
+
+  const r = state.reminders;
+  const overdue = [];
+  const lastPhoto = lastEntryDate(state.bodyComp.photos);
+  const lastMeas  = lastEntryDate(state.bodyComp.measurements);
+  const lastIB    = lastEntryDate(state.bodyComp.inbody);
+  if (daysSince(lastPhoto) > r.photoDays)      overdue.push({ label: '📸 Photo',       fn: 'openPhotoModal()' });
+  if (daysSince(lastMeas)  > r.measurementDays) overdue.push({ label: '📏 Measurements', fn: 'openMeasurementModal()' });
+  if (daysSince(lastIB)    > r.inbodyDays)      overdue.push({ label: '⚖️ InBody/DEXA',  fn: 'openInBodyModal()' });
+
+  if (overdue.length === 0) { el.style.display = 'none'; return; }
+
+  el.style.display = 'block';
+  el.style.cssText = 'display:block;background:linear-gradient(135deg,rgba(249,115,22,0.12),rgba(168,85,247,0.04));border:1px solid rgba(249,115,22,0.25);border-radius:12px;padding:10px 12px;margin:10px 0;font-size:12px';
+  el.innerHTML =
+    '<div style="font-size:10px;color:#fdba74;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Body comp · due</div>' +
+    overdue.map(o => `<button onclick="${o.fn}" style="display:inline-block;margin:2px 4px 2px 0;padding:5px 10px;background:rgba(249,115,22,0.18);color:#fdba74;border:0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer">${o.label} →</button>`).join('');
 }
 
 function toggleWalkToday() {
@@ -1810,7 +1972,7 @@ function openDay(i) {
 }
 
 // Check-in auto-save
-['ci-sleep','ci-recovery','ci-exertion','ci-cycle'].forEach(id => {
+['ci-sleep','ci-recovery','ci-exertion','ci-cycle','ci-stress'].forEach(id => {
   document.getElementById(id).addEventListener('input', function() {
     if (!state.checkins[today()]) state.checkins[today()] = {};
     const field = id.split('-')[1];
@@ -1820,6 +1982,13 @@ function openDay(i) {
     updateCheckinWarning(state.checkins[today()]);
   });
 });
+
+// Protein grams auto-save (LoseIt total). Keeps the 5-hit framework intact
+// — grams is an additive metric, not a replacement.
+const _proteinGramsEl = document.getElementById('protein-grams');
+if (_proteinGramsEl) {
+  _proteinGramsEl.addEventListener('input', function() { saveProteinGrams(this.value); });
+}
 
 function updateCheckinWarning(ci) {
   const warn = document.getElementById('ci-warning');
@@ -1907,6 +2076,271 @@ function removeYoga() {
   save();
   closeModal();
   renderHome();
+}
+
+// =====================================================
+// WALK MODAL — mirrors yoga schema (duration, calories, avgHR + walk-specific
+// distance/type/incline). Legacy `walks[date] = true` still counts as logged.
+// =====================================================
+function openWalkModal() {
+  const existing = state.walks[today()];
+  const data = (typeof existing === 'object' && existing) ? existing : {};
+  const modal = document.getElementById('modal-body');
+  modal.innerHTML = `
+    <h3>🚶 Log Walk</h3>
+    <div class="modal-field">
+      <label>Duration (minutes)</label>
+      <input type="text" inputmode="numeric" id="walk-duration" value="${data.duration || ''}" placeholder="e.g. 30">
+    </div>
+    <div class="modal-field">
+      <label>Distance (miles)</label>
+      <input type="text" inputmode="decimal" id="walk-distance" value="${data.distance || ''}" placeholder="e.g. 1.8">
+    </div>
+    <div class="modal-field">
+      <label>Calories</label>
+      <input type="text" inputmode="numeric" id="walk-calories" value="${data.calories || ''}" placeholder="e.g. 180">
+    </div>
+    <div class="modal-field">
+      <label>Avg Heart Rate</label>
+      <input type="text" inputmode="numeric" id="walk-hr" value="${data.avgHR || ''}" placeholder="e.g. 110">
+    </div>
+    <div class="modal-field">
+      <label>Type</label>
+      <select id="walk-type" style="width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:14px">
+        <option value="outdoor" ${data.type === 'outdoor' ? 'selected' : ''}>Outdoor</option>
+        <option value="treadmill" ${data.type === 'treadmill' ? 'selected' : ''}>Treadmill</option>
+        <option value="incline" ${data.type === 'incline' ? 'selected' : ''}>Incline (treadmill)</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Incline % (treadmill only)</label>
+      <input type="text" inputmode="decimal" id="walk-incline" value="${data.incline || ''}" placeholder="e.g. 5">
+    </div>
+    <div class="modal-field">
+      <label>Notes</label>
+      <input type="text" id="walk-notes" value="${data.notes || ''}" placeholder="e.g. zone-2 outdoor, post-lift">
+    </div>
+    <button class="modal-save-btn" onclick="saveWalk()">Save Walk</button>
+    ${existing ? '<button style="width:100%;margin-top:8px;padding:12px;color:var(--accent-red);font-size:14px;font-weight:600" onclick="removeWalk()">Remove Entry</button>' : ''}
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function saveWalk() {
+  const duration = parseInt(document.getElementById('walk-duration').value) || 0;
+  const distance = parseFloat(document.getElementById('walk-distance').value) || 0;
+  const calories = parseInt(document.getElementById('walk-calories').value) || 0;
+  const avgHR = parseInt(document.getElementById('walk-hr').value) || 0;
+  const type = document.getElementById('walk-type').value;
+  const incline = parseFloat(document.getElementById('walk-incline').value) || 0;
+  const notes = document.getElementById('walk-notes').value.trim();
+
+  state.walks[today()] = {
+    duration: duration,
+    distance: distance,
+    calories: calories,
+    avgHR: avgHR,
+    type: type,
+    incline: incline,
+    notes: notes
+  };
+  save();
+  closeModal();
+  renderHome();
+}
+
+function removeWalk() {
+  delete state.walks[today()];
+  save();
+  closeModal();
+  renderHome();
+}
+
+// Legacy: keep the old toggle function for any external callers, but it now
+// just routes through the modal so users always see the detail form.
+function toggleWalkToday() { openWalkModal(); }
+
+// =====================================================
+// BODY COMP — photos, measurements, InBody/DEXA entries.
+// Photos are stored as date+notes only; the image file lives in the user's
+// camera roll. Reminders surface a soft nudge on Home when overdue.
+// =====================================================
+function ensureBodyComp() {
+  if (!state.bodyComp) state.bodyComp = { photos: [], measurements: [], inbody: [] };
+  if (!state.reminders) state.reminders = { photoDays: 14, measurementDays: 14, inbodyDays: 30 };
+}
+
+function daysSince(dateStr) {
+  if (!dateStr) return Infinity;
+  const a = new Date(dateStr + 'T12:00:00');
+  const b = new Date();
+  return Math.floor((b - a) / (1000 * 60 * 60 * 24));
+}
+
+function lastEntryDate(arr) {
+  if (!arr || arr.length === 0) return null;
+  return [...arr].sort((a, b) => (a.date < b.date ? 1 : -1))[0].date;
+}
+
+function openPhotoModal() {
+  ensureBodyComp();
+  const modal = document.getElementById('modal-body');
+  modal.innerHTML = `
+    <h3>📸 Log Body Photo</h3>
+    <p style="font-size:11px;color:var(--text2);margin:0 0 12px">Photos live in your camera roll. This just records that you took them so we can track the cadence and let you compare across blocks.</p>
+    <div class="modal-field">
+      <label>Date</label>
+      <input type="date" id="photo-date" value="${today()}" style="width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:14px">
+    </div>
+    <div class="modal-field">
+      <label>Notes (lighting, poses, body state)</label>
+      <input type="text" id="photo-notes" placeholder="e.g. front/side/back · fasted AM · cycle day 4">
+    </div>
+    <button class="modal-save-btn" onclick="savePhotoEntry()">Save Entry</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function savePhotoEntry() {
+  ensureBodyComp();
+  const date = document.getElementById('photo-date').value || today();
+  const notes = document.getElementById('photo-notes').value.trim();
+  state.bodyComp.photos.push({ date, notes });
+  save();
+  closeModal();
+  renderProgress();
+  renderHome();
+}
+
+function openMeasurementModal() {
+  ensureBodyComp();
+  const last = (state.bodyComp.measurements || []).slice(-1)[0] || {};
+  const modal = document.getElementById('modal-body');
+  modal.innerHTML = `
+    <h3>📏 Log Measurements</h3>
+    <p style="font-size:11px;color:var(--text2);margin:0 0 12px">All values in inches. Skip any field — partials are fine.</p>
+    <div class="modal-field">
+      <label>Date</label>
+      <input type="date" id="m-date" value="${today()}" style="width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:14px">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="modal-field"><label>Waist</label><input type="text" inputmode="decimal" id="m-waist" placeholder="${last.waist || 'in'}"></div>
+      <div class="modal-field"><label>Hips</label><input type="text" inputmode="decimal" id="m-hips" placeholder="${last.hips || 'in'}"></div>
+      <div class="modal-field"><label>Thigh L</label><input type="text" inputmode="decimal" id="m-thighL" placeholder="${last.thighL || 'in'}"></div>
+      <div class="modal-field"><label>Thigh R</label><input type="text" inputmode="decimal" id="m-thighR" placeholder="${last.thighR || 'in'}"></div>
+      <div class="modal-field"><label>Chest</label><input type="text" inputmode="decimal" id="m-chest" placeholder="${last.chest || 'in'}"></div>
+      <div class="modal-field"><label>Arm L</label><input type="text" inputmode="decimal" id="m-armL" placeholder="${last.armL || 'in'}"></div>
+      <div class="modal-field"><label>Arm R</label><input type="text" inputmode="decimal" id="m-armR" placeholder="${last.armR || 'in'}"></div>
+    </div>
+    <div class="modal-field">
+      <label>Notes</label>
+      <input type="text" id="m-notes" placeholder="e.g. AM fasted, post-period">
+    </div>
+    <button class="modal-save-btn" onclick="saveMeasurementEntry()">Save Measurements</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function saveMeasurementEntry() {
+  ensureBodyComp();
+  const entry = { date: document.getElementById('m-date').value || today() };
+  ['waist','hips','thighL','thighR','chest','armL','armR'].forEach(k => {
+    const v = parseFloat(document.getElementById('m-' + k).value);
+    if (v > 0) entry[k] = v;
+  });
+  const notes = document.getElementById('m-notes').value.trim();
+  if (notes) entry.notes = notes;
+  state.bodyComp.measurements.push(entry);
+  save();
+  closeModal();
+  renderProgress();
+  renderHome();
+}
+
+function openInBodyModal() {
+  ensureBodyComp();
+  const modal = document.getElementById('modal-body');
+  modal.innerHTML = `
+    <h3>⚖️ Log InBody / DEXA</h3>
+    <div class="modal-field">
+      <label>Date</label>
+      <input type="date" id="ib-date" value="${today()}" style="width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:14px">
+    </div>
+    <div class="modal-field">
+      <label>Source</label>
+      <select id="ib-source" style="width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:14px">
+        <option value="InBody">InBody</option>
+        <option value="DEXA">DEXA</option>
+        <option value="BodPod">BodPod</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="modal-field"><label>Weight (lb)</label><input type="text" inputmode="decimal" id="ib-weight" placeholder="e.g. 133.4"></div>
+      <div class="modal-field"><label>Body fat %</label><input type="text" inputmode="decimal" id="ib-bf" placeholder="e.g. 23.4"></div>
+      <div class="modal-field"><label>SMM (lb)</label><input type="text" inputmode="decimal" id="ib-smm" placeholder="skeletal muscle"></div>
+      <div class="modal-field"><label>ECW/TBW</label><input type="text" inputmode="decimal" id="ib-ecw" placeholder="e.g. 0.370"></div>
+    </div>
+    <div class="modal-field">
+      <label>Notes</label>
+      <input type="text" id="ib-notes" placeholder="e.g. fasted AM, post-period">
+    </div>
+    <button class="modal-save-btn" onclick="saveInBodyEntry()">Save Entry</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function saveInBodyEntry() {
+  ensureBodyComp();
+  const entry = { date: document.getElementById('ib-date').value || today() };
+  entry.source = document.getElementById('ib-source').value;
+  const weight = parseFloat(document.getElementById('ib-weight').value);
+  const bf = parseFloat(document.getElementById('ib-bf').value);
+  const smm = parseFloat(document.getElementById('ib-smm').value);
+  const ecw = parseFloat(document.getElementById('ib-ecw').value);
+  if (weight > 0) entry.weight = weight;
+  if (bf > 0) entry.bf = bf;
+  if (smm > 0) entry.smm = smm;
+  if (ecw > 0) entry.ecwTbw = ecw;
+  const notes = document.getElementById('ib-notes').value.trim();
+  if (notes) entry.notes = notes;
+  state.bodyComp.inbody.push(entry);
+  save();
+  closeModal();
+  renderProgress();
+  renderHome();
+}
+
+// Render last entry per category + cadence "next due" hint.
+function renderBodyCompHistory() {
+  ensureBodyComp();
+  const el = document.getElementById('bodycomp-history');
+  const cadenceEl = document.getElementById('bodycomp-cadence');
+  if (!el) return;
+
+  const lastPhoto = lastEntryDate(state.bodyComp.photos);
+  const lastMeas  = lastEntryDate(state.bodyComp.measurements);
+  const lastIB    = lastEntryDate(state.bodyComp.inbody);
+
+  const row = (label, dateStr, cadenceDays) => {
+    if (!dateStr) {
+      return `<div style="display:flex;justify-content:space-between;padding:4px 0"><span>${label}</span><span style="color:var(--text3)">never logged</span></div>`;
+    }
+    const d = daysSince(dateStr);
+    const overdue = d > cadenceDays;
+    const due = `${d}d ago${overdue ? ' · overdue' : ''}`;
+    const color = overdue ? 'var(--accent-orange)' : 'var(--text)';
+    return `<div style="display:flex;justify-content:space-between;padding:4px 0"><span>${label}</span><span style="color:${color};font-weight:${overdue ? '700' : '500'}">${dateStr} (${due})</span></div>`;
+  };
+
+  el.innerHTML =
+    row('📸 Photo',       lastPhoto, state.reminders.photoDays) +
+    row('📏 Measurements', lastMeas,  state.reminders.measurementDays) +
+    row('⚖️ InBody/DEXA',  lastIB,    state.reminders.inbodyDays);
+
+  if (cadenceEl) {
+    cadenceEl.textContent = `cadence: ${state.reminders.photoDays}d / ${state.reminders.measurementDays}d / ${state.reminders.inbodyDays}d`;
+  }
 }
 
 // =====================================================
@@ -2168,7 +2602,25 @@ function renderProteinHits() {
   ).join('');
 
   const filled = hits.filter(Boolean).length;
-  document.getElementById('protein-count').textContent = `${filled} / 5 hits · ~${filled * 30}g protein`;
+  // Use LoseIt grams as source of truth if entered; otherwise estimate from hits.
+  const grams = state.proteinGrams && state.proteinGrams[today()];
+  const target = 150;
+  const countEl = document.getElementById('protein-count');
+  if (grams && grams > 0) {
+    const pct = Math.min(100, Math.round((grams / target) * 100));
+    countEl.textContent = `${grams}g logged · ${pct}% of target · ${filled}/5 hits`;
+  } else {
+    countEl.textContent = `${filled} / 5 hits · ~${filled * 30}g protein (est.)`;
+  }
+
+  // Mini progress bar mirrors LoseIt grams against the 150g target.
+  const gramsInput = document.getElementById('protein-grams');
+  const fillEl = document.getElementById('protein-grams-fill');
+  if (gramsInput && fillEl) {
+    gramsInput.value = grams || '';
+    const pct = grams ? Math.min(100, Math.round((grams / target) * 100)) : 0;
+    fillEl.style.width = pct + '%';
+  }
 }
 
 function toggleProteinHit(i) {
@@ -2178,14 +2630,501 @@ function toggleProteinHit(i) {
   renderProteinHits();
 }
 
+function saveProteinGrams(val) {
+  const g = parseInt(val, 10);
+  if (!state.proteinGrams) state.proteinGrams = {};
+  if (g > 0) state.proteinGrams[today()] = g;
+  else delete state.proteinGrams[today()];
+  save();
+  renderProteinHits();
+}
+
 // =====================================================
 // PROGRESS / STATS
+// =====================================================
+// =====================================================
+// COACH'S DASHBOARD — Stats page widgets
+// =====================================================
+
+// Cycle-phase classifier. Maps cycle day → phase name + accent color +
+// short label. Phases use 28-day defaults; if user has a non-standard
+// cycle the labels are still directionally correct.
+function cyclePhase(day) {
+  if (!day || day < 1) return { name: '—', color: 'var(--text3)', shortLabel: 'log cycle day', isPower: false };
+  if (day <= 5)  return { name: 'menses',     color: '#ec4899', shortLabel: 'menses',     isPower: day >= 2 };
+  if (day <= 13) return { name: 'follicular', color: '#f9a8d4', shortLabel: 'follicular', isPower: day <= 7 };
+  if (day <= 16) return { name: 'ovulation',  color: '#fbbf24', shortLabel: 'ovulation',  isPower: false };
+  return                  { name: 'luteal',    color: '#a78bfa', shortLabel: 'luteal',     isPower: false, isCrash: day >= 20 };
+}
+
+// Latest checkin value for a given key. Falls back to the most recent
+// non-empty entry within `lookback` days. Returns `null` if none found.
+function recentCheckinVal(key, lookback = 7) {
+  const now = new Date();
+  for (let i = 0; i < lookback; i++) {
+    const d = new Date(now); d.setDate(now.getDate() - i);
+    const ci = state.checkins[dateStr(d)];
+    if (ci && ci[key] != null && ci[key] !== 0) return { val: ci[key], dateOffset: i };
+  }
+  return null;
+}
+
+// Map workout-key + exercise index → bucket. Uses the LIVE program (not
+// historical), which is acceptable because exercise indexes are append-only
+// — past data still maps to its original exercise.
+function bucketFor(workoutKey, exIdx) {
+  const m = workoutKey.match(/^(b\d+)?w(\d+)d(\d+)$/);
+  if (!m) return null;
+  const blockPrefix = m[1]; // 'b2' or undefined
+  const dayIdx = parseInt(m[3], 10);
+  const prog = blockPrefix === 'b2' ? BLOCK2_PROGRAM : BLOCK1_PROGRAM;
+  const day = prog.days[dayIdx];
+  if (!day || !day.exercises[exIdx]) return null;
+  return day.exercises[exIdx].bucket || null;
+}
+
+// Sum tonnage (weight × reps for `done` sets) across a date range, grouped
+// by bucket. `dateRange` is { start, end } inclusive ISO date strings.
+// Returns { bucket: { tonnage, byExercise: [{name, tonnage}] } }.
+function computeTonnage(dateRange) {
+  const out = {};
+  // Find which workout keys fall in the range — workoutDates is the truth.
+  const inRangeDates = Object.keys(state.workoutDates || {}).filter(d => d >= dateRange.start && d <= dateRange.end);
+  // We don't have a direct date → workout-key map. Walk workouts and use
+  // sets' presence + workoutDates parity to attribute. As a heuristic we
+  // process every workout whose key has at least one done set AND whose
+  // attributed date falls in range. Since users can do multiple workouts
+  // in a day, we map each workoutDates entry to the most-recent-fitting
+  // workout key by checking what workouts exist.
+  // Simpler: iterate every workout; if its set count contributes to
+  // workoutDates AND any of those dates falls in range, include it. For
+  // accurate range filtering this is a reasonable approximation given the
+  // app's current data model (workoutDates lacks a workoutKey↔date link).
+  // To improve: future work could store a date on each workout record.
+  Object.keys(state.workouts).forEach(woKey => {
+    const wo = state.workouts[woKey];
+    if (!wo || !wo.sets) return;
+    const doneSets = Object.entries(wo.sets).filter(([, s]) => s.done);
+    if (doneSets.length === 0) return;
+    // Skip if we cannot positively attribute the workout to this range.
+    // Heuristic: include block-2 workouts when range overlaps Block-2 era
+    // (currentBlock === 2 and start >= 2026-05-01). For other workouts,
+    // include them if ANY date in range maps to a workoutDates entry.
+    // To keep things simple, we include all workouts whose key contains
+    // 'b2' when range start >= 2026-05-01, and exclude them otherwise.
+    const isB2 = woKey.startsWith('b2');
+    const rangeIsB2Era = dateRange.start >= '2026-05-01';
+    if (isB2 !== rangeIsB2Era) return;
+    doneSets.forEach(([setId, s]) => {
+      const [exIdxStr] = setId.split('_');
+      const exIdx = parseInt(exIdxStr, 10);
+      const bucket = bucketFor(woKey, exIdx);
+      if (!bucket) return;
+      const w = parseFloat(s.weight) || 0;
+      const r = parseFloat(s.reps) || 0;
+      const t = w * r;
+      if (t === 0) return;
+      if (!out[bucket]) out[bucket] = { tonnage: 0, byExercise: {} };
+      out[bucket].tonnage += t;
+      // Find exercise name
+      const m = woKey.match(/^(b\d+)?w(\d+)d(\d+)$/);
+      const prog = m && m[1] === 'b2' ? BLOCK2_PROGRAM : BLOCK1_PROGRAM;
+      const exName = (prog.days[parseInt(m[3], 10)].exercises[exIdx] || {}).name || `Ex ${exIdx}`;
+      out[bucket].byExercise[exName] = (out[bucket].byExercise[exName] || 0) + t;
+    });
+  });
+  return out;
+}
+
+// Sunday-start week range containing the given date.
+function weekRangeFor(d) {
+  const start = weekStart(d);
+  const end = new Date(start); end.setDate(start.getDate() + 6);
+  return { start: dateStr(start), end: dateStr(end) };
+}
+
+// =====================================================
+// 1. READINESS CARD — today's snapshot. Falls back gracefully when
+// Apple-Health HRV/RHR aren't available; uses checkin scores which the user
+// already logs from Athlytic.
+// =====================================================
+function renderReadinessCard() {
+  const el = document.getElementById('readiness-card');
+  if (!el) return;
+  const ci = state.checkins[today()] || {};
+  const ciY = state.checkins[(() => { const d = new Date(); d.setDate(d.getDate() - 1); return dateStr(d); })()] || {};
+
+  const recovery = ci.recovery || 0;
+  const score = Math.round(recovery * 100);
+  const yScore = Math.round((ciY.recovery || 0) * 100);
+  const delta = yScore > 0 ? score - yScore : null;
+  const phase = cyclePhase(ci.cycle);
+
+  const badge = phase.isPower
+    ? '<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;background:rgba(34,197,94,0.18);color:#4ade80">Power window</span>'
+    : phase.isCrash
+      ? '<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;background:rgba(239,68,68,0.18);color:#f87171">Match RPE not weight</span>'
+      : score >= 70
+        ? '<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;background:rgba(34,197,94,0.18);color:#4ade80">Ready</span>'
+        : score >= 40
+          ? '<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;background:rgba(234,179,8,0.18);color:#facc15">Moderate</span>'
+          : score > 0
+            ? '<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;background:rgba(239,68,68,0.18);color:#f87171">Low</span>'
+            : '<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;background:rgba(255,255,255,0.08);color:var(--text3)">Log check-in</span>';
+
+  const deltaStr = delta != null
+    ? `<div style="font-size:10px;color:${delta > 0 ? '#4ade80' : delta < 0 ? '#f87171' : 'var(--text3)'};font-weight:600">${delta > 0 ? '↑' : delta < 0 ? '↓' : '→'} ${Math.abs(delta)} vs yesterday</div>`
+    : '';
+
+  const mini = (label, val, sub) => `
+    <div style="background:rgba(0,0,0,0.25);border-radius:10px;padding:8px 6px;text-align:center">
+      <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;font-weight:600">${label}</div>
+      <div style="font-size:16px;font-weight:700;margin-top:2px">${val}</div>
+      <div style="font-size:9px;color:var(--text2);margin-top:1px">${sub}</div>
+    </div>`;
+
+  const sleepVal   = ci.sleep ? Math.round(ci.sleep * 100) : '—';
+  const recVal     = ci.recovery ? Math.round(ci.recovery * 100) : '—';
+  const cycleVal   = ci.cycle || '—';
+  const stressVal  = ci.stress ? String(ci.stress) : '—';
+
+  el.style.cssText = 'background:linear-gradient(135deg,rgba(168,85,247,0.18),rgba(59,130,246,0.10));border:1px solid rgba(168,85,247,0.3);border-radius:18px;padding:16px;margin-bottom:14px;position:relative;overflow:hidden';
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+      <div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text2);font-weight:600">Today's readiness</div>
+        <div style="margin-top:4px">${badge}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:48px;font-weight:800;line-height:1;background:linear-gradient(135deg,#22c55e,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${score || '—'}</div>
+        ${deltaStr}
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px">
+      ${mini('Sleep',    sleepVal === '—' ? '—' : sleepVal, sleepVal === '—' ? '' : 'score')}
+      ${mini('Recovery', recVal === '—' ? '—' : recVal,    recVal === '—' ? '' : 'score')}
+      ${mini('Cycle',    cycleVal === '—' ? '—' : 'D' + cycleVal, phase.shortLabel)}
+      ${mini('Stress',   stressVal,                          stressVal === '—' ? 'unlogged' : (parseInt(stressVal,10) >= 4 ? 'high' : 'manageable'))}
+    </div>
+  `;
+}
+
+// =====================================================
+// 2. CYCLE RIBBON — single line under readiness, sets phase context.
+// =====================================================
+function renderCycleRibbon() {
+  const el = document.getElementById('cycle-ribbon');
+  if (!el) return;
+  const ci = state.checkins[today()] || {};
+  const day = ci.cycle;
+  if (!day) {
+    el.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;font-size:12px;color:var(--text2)';
+    el.innerHTML = '🌒 Log cycle day in today\'s check-in to surface phase guidance.';
+    return;
+  }
+  const phase = cyclePhase(day);
+  const note = phase.isPower
+    ? 'peak training window — push it'
+    : phase.isCrash
+      ? 'autonomic dip likely — match RPE, not weight'
+      : phase.name === 'ovulation'
+        ? 'high readiness if symptoms allow'
+        : phase.name === 'follicular'
+          ? 'good window for progression'
+          : 'log it to see phase guidance';
+  el.style.cssText = `display:flex;align-items:center;gap:8px;padding:10px 12px;background:linear-gradient(90deg,${phase.color}26,${phase.color}0a);border:1px solid ${phase.color}3f;border-radius:12px;margin-bottom:14px`;
+  el.innerHTML = `
+    <span style="font-size:18px">🌒</span>
+    <div style="font-size:12px;color:var(--text);flex:1">
+      <strong style="color:${phase.color}">Cycle day ${day}</strong> · <span style="color:var(--text2);font-size:11px">${phase.name} — ${note}</span>
+    </div>`;
+}
+
+// =====================================================
+// 3. WEEK STRIP — past 7 days as tiles: cycle day, recovery dot, activity
+// icons.
+// =====================================================
+function renderWeekStrip() {
+  const el = document.getElementById('week-strip-card');
+  if (!el) return;
+  const now = new Date();
+  const tiles = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now); d.setDate(now.getDate() - i);
+    const ds = dateStr(d);
+    const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+    const dayNum = d.getDate();
+    const ci = state.checkins[ds] || {};
+    const recovery = ci.recovery;
+    const dotClass = recovery == null ? 'n' : recovery >= 0.7 ? 'g' : recovery >= 0.4 ? 'y' : 'r';
+    const dotColor = { g: '#22c55e', y: '#eab308', r: '#ef4444', n: 'rgba(255,255,255,0.1)' }[dotClass];
+    const icons = [];
+    if (state.workoutDates[ds]) icons.push('🏋️');
+    const y = state.yoga[ds];
+    if (y === true || (typeof y === 'object' && y && y.duration)) icons.push('🧘');
+    const w = state.walks[ds];
+    if (w === true || (typeof w === 'object' && w && (w.duration || w.distance))) icons.push('🚶');
+    const isToday = i === 0;
+    tiles.push(`
+      <div style="background:var(--card);border:1px solid ${isToday ? 'var(--accent-purple)' : 'var(--border)'};border-radius:10px;padding:8px 4px;text-align:center;${isToday ? 'box-shadow:0 0 0 1px rgba(168,85,247,0.3)' : ''}">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;font-weight:600">${dayName}</div>
+        <div style="font-size:14px;font-weight:700;margin-top:2px">${dayNum}</div>
+        ${ci.cycle ? `<div style="display:inline-block;font-size:8px;background:rgba(236,72,153,0.25);color:#f9a8d4;padding:1px 4px;border-radius:6px;margin-top:3px;font-weight:600">D${ci.cycle}</div>` : '<div style="height:11px"></div>'}
+        <div style="width:10px;height:10px;border-radius:50%;background:${dotColor};margin:5px auto 0"></div>
+        <div style="display:flex;gap:1px;justify-content:center;margin-top:4px;height:11px;font-size:8px">${icons.join('')}</div>
+      </div>`);
+  }
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:0 4px 8px">
+      <span style="font-size:13px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:0.06em">This week</span>
+      <span style="font-size:10px;color:var(--text3)">cycle · recovery · activity</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:16px">${tiles.join('')}</div>`;
+}
+
+// =====================================================
+// 4. COACH INSIGHT — single auto-generated tip based on today's state.
+// =====================================================
+function renderCoachInsight() {
+  const el = document.getElementById('coach-insight');
+  if (!el) return;
+  const ci = state.checkins[today()] || {};
+  const phase = cyclePhase(ci.cycle);
+
+  const msgs = [];
+  if (phase.isPower) msgs.push('🚀 Power window — schedule heavy work today or tomorrow.');
+  if (phase.isCrash) msgs.push('🌒 Late luteal — match RPE not weight; expect choppy recovery.');
+  if (ci.stress >= 4) msgs.push('⚠️ High stress logged — protein adherence usually crashes here. Set a LoseIt reminder.');
+  // Protein gap: compare last 3 days
+  let proteinSum = 0, proteinCount = 0;
+  for (let i = 1; i <= 3; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const g = state.proteinGrams && state.proteinGrams[dateStr(d)];
+    if (g != null) { proteinSum += g; proteinCount++; }
+  }
+  if (proteinCount >= 2 && (proteinSum / proteinCount) < 100) {
+    msgs.push(`💪 Protein 3-day avg ~${Math.round(proteinSum / proteinCount)}g — under 100. Biggest lever on lower-body gains.`);
+  }
+  // Glute med gap: any glute_med_iso volume this week?
+  const wk = weekRangeFor(new Date());
+  const ton = computeTonnage(wk);
+  if ((!ton.glute_med_iso || ton.glute_med_iso.tonnage === 0) && today() >= (state.featureEffectiveDates.volumeTracking || '2026-05-10')) {
+    msgs.push('🎯 Glute med iso: 0 lb this week. Lateral band walk (D1) or cable hip abduction (D3) closes it.');
+  }
+  if (msgs.length === 0) msgs.push('✓ All metrics in the green zone today. Train to the program.');
+
+  el.style.cssText = 'background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(168,85,247,0.05));border:1px solid rgba(34,197,94,0.25);border-radius:14px;padding:12px;margin-bottom:14px;font-size:11px;color:var(--text);line-height:1.5';
+  el.innerHTML = `
+    <div style="font-size:10px;color:#4ade80;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">💡 Coach note</div>
+    ${msgs.map(m => '<div style="margin:3px 0">' + m + '</div>').join('')}
+  `;
+}
+
+// =====================================================
+// 5. VOLUME WIDGET — tonnage by muscle group, this week vs last.
+// Respects featureEffectiveDates.volumeTracking — weeks before that date
+// are not graded against the new metric.
+// =====================================================
+const BUCKET_LABELS = {
+  lower_compound:  { label: 'Lower compound', color: 'linear-gradient(90deg,#a855f7,#ec4899)' },
+  lower_glute:     { label: 'Hip thrust',     color: 'linear-gradient(90deg,#ec4899,#f9a8d4)' },
+  hamstring_hinge: { label: 'Hamstring hinge',color: 'linear-gradient(90deg,#22c55e,#86efac)' },
+  glute_med_iso:   { label: 'Glute med iso',  color: 'linear-gradient(90deg,#f97316,#fb923c)' },
+  upper_push:      { label: 'Upper push',     color: 'linear-gradient(90deg,#3b82f6,#60a5fa)' },
+  upper_pull:      { label: 'Upper pull',     color: 'linear-gradient(90deg,#22c55e,#86efac)' },
+  core:            { label: 'Core',           color: 'linear-gradient(90deg,#64748b,#94a3b8)' },
+  conditioning:    { label: 'Conditioning',   color: 'linear-gradient(90deg,#64748b,#94a3b8)' }
+};
+const VOLUME_BUCKETS_ORDER = ['lower_compound','lower_glute','hamstring_hinge','glute_med_iso','upper_push','upper_pull'];
+
+// Track which bucket is expanded for breakdown.
+let _expandedBucket = null;
+
+function renderVolumeWidget() {
+  const el = document.getElementById('volume-card');
+  if (!el) return;
+  const thisWeek = weekRangeFor(new Date());
+  const lastWeekDate = new Date(); lastWeekDate.setDate(lastWeekDate.getDate() - 7);
+  const lastWeek = weekRangeFor(lastWeekDate);
+
+  const t1 = computeTonnage(thisWeek);
+  const t2 = computeTonnage(lastWeek);
+
+  const effective = (state.featureEffectiveDates && state.featureEffectiveDates.volumeTracking) || '2026-05-10';
+  const featureLive = today() >= effective;
+
+  // Find max for bar scaling (so the biggest bucket fills the bar).
+  const maxTonnage = Math.max(1, ...Object.values(t1).map(v => v.tonnage), ...Object.values(t2).map(v => v.tonnage));
+
+  const rows = VOLUME_BUCKETS_ORDER.map(b => {
+    const a = t2[b] ? t2[b].tonnage : 0;
+    const c = t1[b] ? t1[b].tonnage : 0;
+    const lbl = BUCKET_LABELS[b];
+    const widthPct = Math.round((c / maxTonnage) * 100);
+    const prevPct  = Math.round((a / maxTonnage) * 100);
+
+    // Decide right-side delta label.
+    let deltaHTML;
+    if (c === 0 && a === 0) {
+      // Glute med gap callout, but ONLY after feature effective date.
+      if (b === 'glute_med_iso' && featureLive) {
+        deltaHTML = '<span style="color:#fdba74;font-weight:700">gap</span>';
+      } else if (a === 0 && c === 0) {
+        // Likely "not done yet this week" — pull day for example.
+        deltaHTML = '<span style="color:var(--text3)">⏳</span>';
+      }
+    } else if (a === 0 && c > 0) {
+      deltaHTML = '<span style="color:#4ade80;font-weight:700">new</span>';
+    } else if (c === 0 && a > 0) {
+      deltaHTML = '<span style="color:var(--text3)">⏳</span>';
+    } else {
+      const pct = Math.round(((c - a) / a) * 100);
+      const sign = pct > 0 ? '+' : '';
+      deltaHTML = `<span style="color:${pct >= 0 ? '#4ade80' : '#f87171'};font-weight:700">${sign}${pct}%</span>`;
+    }
+
+    const isGap = (b === 'glute_med_iso' && c === 0 && featureLive);
+    const opacity = (c === 0 && a === 0 && b !== 'glute_med_iso') ? 0.7 : 1;
+    const isExpanded = _expandedBucket === b;
+
+    let breakdown = '';
+    if (isExpanded && t1[b] && Object.keys(t1[b].byExercise || {}).length) {
+      const items = Object.entries(t1[b].byExercise).sort((a,b) => b[1]-a[1]);
+      const total = items.reduce((s, [, v]) => s + v, 0);
+      breakdown = `
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px 10px;margin:4px 0 8px;font-size:11px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;font-weight:700">${lbl.label} · breakdown</span>
+            <span style="font-size:10px;color:var(--text3)">${Math.round(total)} lb</span>
+          </div>
+          ${items.map(([name, v]) => `<div style="display:flex;justify-content:space-between;padding:3px 0;color:var(--text2)"><span>${name}</span><span style="color:var(--text);font-weight:600">${Math.round(v).toLocaleString()} lb</span></div>`).join('')}
+        </div>`;
+    }
+
+    const valueLabel = c > 0 ? `${Math.round(c).toLocaleString()} lb` : (isGap ? '0' : (a > 0 ? '— ' : '—'));
+
+    return `
+      <div onclick="toggleVolumeBucket('${b}')" style="display:flex;align-items:center;gap:10px;margin:7px 0;font-size:11px;cursor:pointer;opacity:${opacity}">
+        <div style="width:96px;color:var(--text2);font-weight:500">${lbl.label}</div>
+        <div style="flex:1;height:14px;background:rgba(255,255,255,0.05);border-radius:7px;position:relative;overflow:hidden">
+          <div style="height:100%;border-radius:7px;display:flex;align-items:center;padding:0 6px;font-size:10px;font-weight:700;color:#fff;background:${isGap ? 'rgba(249,115,22,0.4)' : lbl.color};width:${Math.max(widthPct, c > 0 ? 6 : 3)}%">${valueLabel}</div>
+          ${a > 0 ? `<div style="position:absolute;top:0;height:14px;border-right:2px dashed rgba(255,255,255,0.4);left:${prevPct}%" title="last week ${Math.round(a)} lb"></div>` : ''}
+        </div>
+        <div style="width:42px;text-align:right;font-size:10px">${deltaHTML}</div>
+      </div>
+      ${breakdown}`;
+  }).join('');
+
+  const totalThis = Object.values(t1).reduce((s, v) => s + v.tonnage, 0);
+  const totalLast = Object.values(t2).reduce((s, v) => s + v.tonnage, 0);
+
+  el.innerHTML = `
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <div style="font-size:13px;font-weight:600;color:var(--text2)">VOLUME THIS WEEK</div>
+        <div style="font-size:11px;color:var(--accent-purple);font-weight:600">${Math.round(totalThis).toLocaleString()} lb total</div>
+      </div>
+      <p style="font-size:10px;color:var(--text3);margin:0 0 8px">Σ(weight × reps) of completed sets · tap a row for breakdown · ▎ = last week (${Math.round(totalLast).toLocaleString()} lb)</p>
+      ${rows}
+      ${!featureLive ? '<div style="margin-top:6px;padding:6px 8px;background:rgba(168,85,247,0.08);border-radius:6px;font-size:10px;color:var(--text2)">Volume tracking starts ' + effective + '. Earlier weeks are not graded against new buckets.</div>' : ''}
+    </div>`;
+}
+
+function toggleVolumeBucket(b) {
+  _expandedBucket = (_expandedBucket === b) ? null : b;
+  renderVolumeWidget();
+}
+
+// =====================================================
+// 6. LIFT PROGRESSION — sparkline cards per main lift.
+// =====================================================
+function renderLiftProgression() {
+  const el = document.getElementById('lift-progression-grid');
+  if (!el) return;
+  const lifts = (PROGRAM.mainLifts || []);
+
+  // Collect best working set per workout for each main lift.
+  const cards = lifts.map(lift => {
+    const points = [];
+    // Walk every workout, find the lift's day+exIdx, pick best weight done.
+    Object.keys(state.workouts).forEach(woKey => {
+      const wo = state.workouts[woKey];
+      if (!wo || !wo.sets) return;
+      // Resolve workout's block from key prefix
+      const m = woKey.match(/^(b\d+)?w(\d+)d(\d+)$/);
+      if (!m) return;
+      const blockMatch = m[1] === 'b2' ? 2 : 1;
+      if (blockMatch !== state.currentBlock) {
+        // Cross-block: still include for trend if program slot matches
+        // but de-emphasize older block points. We'll include them but only
+        // surface the best from current block for the headline number.
+      }
+      const dayIdx = parseInt(m[3], 10);
+      if (dayIdx !== lift.dayIdx) return;
+      let best = 0;
+      Object.entries(wo.sets).forEach(([sid, s]) => {
+        const [exI] = sid.split('_');
+        if (parseInt(exI, 10) !== lift.exIdx) return;
+        if (!s.done) return;
+        const w = parseFloat(s.weight) || 0;
+        if (w > best) best = w;
+      });
+      if (best > 0) points.push({ key: woKey, weight: best, block: blockMatch });
+    });
+
+    // Headline number = best weight in current block; delta vs best of prior block.
+    const currentBlock = state.currentBlock;
+    const currBest = Math.max(0, ...points.filter(p => p.block === currentBlock).map(p => p.weight));
+    const prevBest = Math.max(0, ...points.filter(p => p.block !== currentBlock).map(p => p.weight));
+    const delta = currBest > 0 && prevBest > 0 ? currBest - prevBest : null;
+    const deltaHTML = delta != null
+      ? (delta > 0
+          ? `<div style="font-size:10px;color:#4ade80;font-weight:700;margin-top:1px">↑ ${delta} lb vs prior block</div>`
+          : delta < 0
+            ? `<div style="font-size:10px;color:#f87171;font-weight:700;margin-top:1px">↓ ${Math.abs(delta)} lb vs prior block</div>`
+            : `<div style="font-size:10px;color:var(--text3);margin-top:1px">flat</div>`)
+      : '<div style="font-size:10px;color:var(--text3);margin-top:1px">first block</div>';
+
+    // Sparkline bars (max 6 most-recent points)
+    const recent = points.slice(-6);
+    const max = Math.max(1, ...recent.map(p => p.weight));
+    const bars = recent.map(p => {
+      const h = Math.max(15, Math.round((p.weight / max) * 100));
+      return `<div style="flex:1;background:${lift.name.toLowerCase().includes('thrust') ? 'linear-gradient(180deg,#ec4899,rgba(236,72,153,0.4))' : lift.name.toLowerCase().includes('bench') ? 'linear-gradient(180deg,#3b82f6,rgba(59,130,246,0.4))' : lift.name.toLowerCase().includes('row') ? 'linear-gradient(180deg,#22c55e,rgba(34,197,94,0.4))' : 'linear-gradient(180deg,#a855f7,rgba(168,85,247,0.4))'};border-radius:2px;min-height:4px;height:${h}%"></div>`;
+    }).join('');
+
+    return `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:10px;position:relative;overflow:hidden">
+        <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;font-weight:600">${lift.name}</div>
+        <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px">
+          <div style="font-size:22px;font-weight:800;line-height:1">${currBest > 0 ? currBest : '—'}</div>
+          <div style="font-size:10px;color:var(--text3);font-weight:600">${currBest > 0 ? 'lb' : ''}</div>
+        </div>
+        ${deltaHTML}
+        ${recent.length > 0 ? `<div style="display:flex;align-items:end;gap:2px;height:24px;margin-top:8px">${bars}</div>` : '<div style="height:24px;margin-top:8px;display:flex;align-items:center;font-size:10px;color:var(--text3)">no data yet</div>'}
+      </div>`;
+  }).join('');
+
+  el.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px';
+  el.innerHTML = cards;
+}
+
+// =====================================================
+// MAIN renderProgress() — replaces the old version. Calls each widget.
 // =====================================================
 function renderProgress() {
   const sub = document.getElementById('progress-subtitle');
   if (sub) sub.textContent = `Block ${state.currentBlock} tracking`;
 
-  // Stat cards
+  // New Coach's Dashboard widgets (top of page)
+  renderReadinessCard();
+  renderCycleRibbon();
+  renderWeekStrip();
+  renderCoachInsight();
+  renderVolumeWidget();
+  renderLiftProgression();
+
+  // Stat cards (kept — high-level counters)
   const totalWorkouts = Object.keys(state.workouts).filter(k => {
     const wo = state.workouts[k];
     return Object.values(wo.sets).some(s => s.done);
@@ -2222,33 +3161,8 @@ function renderProgress() {
   // Weekly Recap Cards (#7)
   renderWeeklyRecaps();
 
-  // Lift bars — block-aware via PROGRAM.mainLifts
-  const lifts = (PROGRAM.mainLifts || []).map((l, i) => ({
-    ...l,
-    key: ['squat','bench','rdl','hipthrust'][i] || 'squat'
-  }));
-
-  document.getElementById('lift-bars').innerHTML = lifts.map(lift => {
-    let best = 0;
-    for (let w = 0; w < PROGRAM.weeks.length; w++) {
-      const woKey = workoutKey(w, lift.dayIdx);
-      const wo = state.workouts[woKey];
-      if (!wo) continue;
-      for (let s = 0; s < 10; s++) {
-        const setData = wo.sets[`${lift.exIdx}_${s}`];
-        if (setData && setData.weight && setData.done) {
-          best = Math.max(best, parseFloat(setData.weight));
-        }
-      }
-    }
-    const pct = best > 0 ? Math.round((best / lift.max) * 100) : 0;
-    return `<div class="lift-row">
-      <div class="lift-name">${lift.name}</div>
-      <div class="lift-bar-bg">
-        <div class="lift-bar ${lift.key}" style="width:${Math.max(pct, 5)}%">${best > 0 ? best + ' lb' : '—'}</div>
-      </div>
-    </div>`;
-  }).join('');
+  // Lift progression now rendered by renderLiftProgression() into
+  // #lift-progression-grid — old lift-bars logic removed.
 
   // Bodyweight history
   const bwHist = document.getElementById('bw-history');
@@ -2256,6 +3170,9 @@ function renderProgress() {
   bwHist.innerHTML = recent.length > 0
     ? recent.map(e => `${e.date}: ${e.weight} lbs`).join('<br>')
     : 'No entries yet';
+
+  // Body comp history + cadence reminders
+  renderBodyCompHistory();
 
   // Wellness history (#6)
   renderWellnessHistory();
@@ -2288,7 +3205,9 @@ function weekCompliance(weekStartDate) {
     if (state.workoutDates[k]) lifts++;
     const y = state.yoga[k];
     if (y === true || (typeof y === 'object' && y && y.duration)) yogas++;
-    if (state.walks && state.walks[k]) walks++;
+    // Walk counts if logged as legacy boolean OR new detail object (duration/distance present)
+    const w = state.walks && state.walks[k];
+    if (w === true || (typeof w === 'object' && w && (w.duration || w.distance))) walks++;
     const ph = state.proteinHits[k];
     if (ph && ph.filter(Boolean).length >= COMPLIANCE.proteinHitsPerDay) proteinDays++;
   }
